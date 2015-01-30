@@ -36,14 +36,14 @@
 			  <pathelement path = "src"/>
 			</src>
 			<classpath refid="libraries" />
- 		    <exclude name="ru/curs/authserver/test/*.*"/>			
+ 		    <exclude name="ru/curs/mellophone/test/*.*"/>			
 		</javac>
 	</target>
 
 	<target name="copy">
 		<copy todir="build">
 			<fileset dir="WebContent">
-				<exclude name="WEB-INF/classes/ru/curs/authserver/test/" />
+				<exclude name="WEB-INF/classes/ru/curs/mellophone/test/" />
 			</fileset>
 		</copy>
 		<copy todir="wininstall/config">
