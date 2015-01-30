@@ -1,4 +1,4 @@
 /**
  * Пакет с тестами.
  */
-package ru.curs.authserver.test;
+package ru.curs.mellophone.test;

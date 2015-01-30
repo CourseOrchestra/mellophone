@@ -1,4 +1,4 @@
-package ru.curs.authserver.test;
+package ru.curs.mellophone.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

@@ -1,18 +1,18 @@
-package ru.curs.authserver.test;
+package ru.curs.mellophone.test;
 
 import org.junit.Test;
 
 import ru.curs.mellophone.logic.EAuthServerLogic;
 
 /**
- * Тесты SQLLoginProvider для MSSQL.
+ * Тесты SQLLoginProvider для Oracle.
  */
-public class SQLLoginProviderMSSQLTest extends BaseTestLoginProvider {
+public class SQLLoginProviderOracleTest extends BaseTestLoginProvider {
 
-	private static final String LOGIN = "Петров1";
+	private static final String LOGIN = "Петров3";
 	private static final String PASSWORD = "пасс2";
 
-	private static final String CHECKNAME_EXISTS = "Сидоров1";
+	private static final String CHECKNAME_EXISTS = "Сидоров3";
 	private static final String CHECKNAME_NOT_EXISTS = "Сидоров22";
 
 	/**

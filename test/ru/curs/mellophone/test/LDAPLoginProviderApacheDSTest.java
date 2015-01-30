@@ -1,19 +1,19 @@
-package ru.curs.authserver.test;
+package ru.curs.mellophone.test;
 
 import org.junit.Test;
 
 import ru.curs.mellophone.logic.EAuthServerLogic;
 
 /**
- * Тесты XMLLoginProvider.
+ * Тесты LDAPLoginProvider для ApacheDS.
  */
-public class XMLLoginProviderTest extends BaseTestLoginProvider {
+public class LDAPLoginProviderApacheDSTest extends BaseTestLoginProvider {
 
-	private static final String LOGIN = "Петров";
+	private static final String LOGIN = "ПетровApache";
 	private static final String PASSWORD = "пасс2";
 
-	private static final String CHECKNAME_EXISTS = "Сидоров";
-	private static final String CHECKNAME_NOT_EXISTS = "Сидоров22";
+	private static final String CHECKNAME_EXISTS = "СидоровApache";
+	private static final String CHECKNAME_NOT_EXISTS = "СидоровApache22";
 
 	/**
 	 * Тест ф-ции login.

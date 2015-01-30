@@ -1,18 +1,18 @@
-package ru.curs.authserver.test;
+package ru.curs.mellophone.test;
 
 import org.junit.Test;
 
 import ru.curs.mellophone.logic.EAuthServerLogic;
 
 /**
- * Тесты SQLLoginProvider для PostgreSql.
+ * Тесты XMLLoginProvider.
  */
-public class SQLLoginProviderPostgreSqlTest extends BaseTestLoginProvider {
+public class XMLLoginProviderTest extends BaseTestLoginProvider {
 
-	private static final String LOGIN = "Петров2";
+	private static final String LOGIN = "Петров";
 	private static final String PASSWORD = "пасс2";
 
-	private static final String CHECKNAME_EXISTS = "Сидоров2";
+	private static final String CHECKNAME_EXISTS = "Сидоров";
 	private static final String CHECKNAME_NOT_EXISTS = "Сидоров22";
 
 	/**
