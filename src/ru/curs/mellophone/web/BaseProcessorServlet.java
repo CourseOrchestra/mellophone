@@ -1,4 +1,4 @@
-package ru.curs.authserver.web;
+package ru.curs.mellophone.web;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import ru.curs.authserver.logic.EAuthServerLogic;
+import ru.curs.mellophone.logic.EAuthServerLogic;
 
 /**
  * Базовый класс сервлетов приложения.

@@ -1,4 +1,4 @@
-package ru.curs.authserver.logic;
+package ru.curs.mellophone.logic;
 
 import java.io.InputStream;
 import java.io.PrintWriter;

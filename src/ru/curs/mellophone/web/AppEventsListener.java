@@ -1,9 +1,9 @@
-package ru.curs.authserver.web;
+package ru.curs.mellophone.web;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import ru.curs.authserver.logic.SQLLoginProvider;
+import ru.curs.mellophone.logic.SQLLoginProvider;
 
 /**
  * Перехватчик старта и остановки приложения.

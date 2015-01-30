@@ -1,27 +1,31 @@
-package ru.curs.authserver.web;
+package ru.curs.mellophone.web;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import ru.curs.authserver.logic.AuthManager;
-import ru.curs.authserver.logic.EAuthServerLogic;
+import ru.curs.mellophone.logic.AuthManager;
+import ru.curs.mellophone.logic.EAuthServerLogic;
 
 /**
- * Servlet implementation /changeuserpwd?sesid=...&username=...&newpwd=...
+ * Servlet implementation /isauthenticated?sesid=...
  */
-public class ProcessChangeUserPwd extends BaseProcessorServlet {
-	private static final long serialVersionUID = -8330645707562369703L;
+public class ProcessIsAuthenticated extends BaseProcessorServlet {
+	private static final long serialVersionUID = -6071358374749875674L;
 
 	@Override
 	protected void service(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 
 		String sesid = request.getParameter("sesid");
-		String username = getRequestParam(request, "username");
-		String newpwd = getRequestParam(request, "newpwd");
+
+		String ip = getRequestParam(request, "ip");
+		if ((ip != null) && ip.isEmpty()) {
+			ip = null;
+		}
 
 		response.reset();
 		setHeaderNoCache(response);
@@ -31,10 +35,10 @@ public class ProcessChangeUserPwd extends BaseProcessorServlet {
 
 		try {
 			try {
-				String name = AuthManager.getTheManager().changeUserPwd(sesid,
-						username, newpwd);
+				PrintWriter pw = response.getWriter();
+				AuthManager.getTheManager().isAuthenticated(sesid, ip, pw);
+				pw.flush();
 				response.setStatus(HttpServletResponse.SC_OK);
-				response.getWriter().append(name).flush();
 			} catch (EAuthServerLogic e) {
 				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 				response.getWriter().append(e.getMessage()).flush();
@@ -43,5 +47,4 @@ public class ProcessChangeUserPwd extends BaseProcessorServlet {
 			response.flushBuffer();
 		}
 	}
-
 }

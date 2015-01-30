@@ -1,5 +1,5 @@
 /**
  * Классы логики приложения.
  */
-package ru.curs.authserver.logic;
+package ru.curs.mellophone.logic;
 

@@ -1,4 +1,4 @@
-package ru.curs.authserver.logic;
+package ru.curs.mellophone.logic;
 
 import javax.xml.transform.TransformerFactory;
 

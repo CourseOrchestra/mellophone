@@ -2,7 +2,7 @@ package ru.curs.authserver.test;
 
 import org.junit.Test;
 
-import ru.curs.authserver.logic.EAuthServerLogic;
+import ru.curs.mellophone.logic.EAuthServerLogic;
 
 /**
  * Тесты SQLLoginProvider для PostgreSql.

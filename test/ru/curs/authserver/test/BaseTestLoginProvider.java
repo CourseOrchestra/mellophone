@@ -10,8 +10,8 @@ import java.io.StringWriter;
 
 import org.junit.Before;
 
-import ru.curs.authserver.logic.AuthManager;
-import ru.curs.authserver.logic.EAuthServerLogic;
+import ru.curs.mellophone.logic.AuthManager;
+import ru.curs.mellophone.logic.EAuthServerLogic;
 
 /**
  * Базовый класс для тестов LoginProvider'ов.

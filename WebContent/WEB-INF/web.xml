@@ -5,7 +5,7 @@
     <welcome-file>welcome.html</welcome-file>
   </welcome-file-list>
   <listener>
-    <listener-class>ru.curs.authserver.web.AppEventsListener</listener-class>
+    <listener-class>ru.curs.mellophone.web.AppEventsListener</listener-class>
   </listener>
   <servlet>
     <servlet-name>login</servlet-name>
@@ -19,7 +19,7 @@
     <description></description>
     <display-name>ProcessCheckName</display-name>
     <servlet-name>ProcessCheckName</servlet-name>
-    <servlet-class>ru.curs.authserver.web.ProcessCheckName</servlet-class>
+    <servlet-class>ru.curs.mellophone.web.ProcessCheckName</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>ProcessCheckName</servlet-name>
@@ -29,7 +29,7 @@
     <description></description>
     <display-name>ProcessIsAuthenticated</display-name>
     <servlet-name>ProcessIsAuthenticated</servlet-name>
-    <servlet-class>ru.curs.authserver.web.ProcessIsAuthenticated</servlet-class>
+    <servlet-class>ru.curs.mellophone.web.ProcessIsAuthenticated</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>ProcessIsAuthenticated</servlet-name>
@@ -40,7 +40,7 @@
     <description></description>
     <display-name>ProcessChangeAppSesId</display-name>
     <servlet-name>ProcessChangeAppSesId</servlet-name>
-    <servlet-class>ru.curs.authserver.web.ProcessChangeAppSesId</servlet-class>
+    <servlet-class>ru.curs.mellophone.web.ProcessChangeAppSesId</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>ProcessChangeAppSesId</servlet-name>
@@ -50,7 +50,7 @@
     <description></description>
     <display-name>ProcessTest</display-name>
     <servlet-name>ProcessTest</servlet-name>
-    <servlet-class>ru.curs.authserver.web.ProcessTest</servlet-class>
+    <servlet-class>ru.curs.mellophone.web.ProcessTest</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>ProcessTest</servlet-name>
@@ -60,7 +60,7 @@
     <description></description>
     <display-name>ProcessLogout</display-name>
     <servlet-name>ProcessLogout</servlet-name>
-    <servlet-class>ru.curs.authserver.web.ProcessLogout</servlet-class>
+    <servlet-class>ru.curs.mellophone.web.ProcessLogout</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>ProcessLogout</servlet-name>
@@ -70,7 +70,7 @@
     <description></description>
     <display-name>ProcessLogin</display-name>
     <servlet-name>ProcessLogin</servlet-name>
-    <servlet-class>ru.curs.authserver.web.ProcessLogin</servlet-class>
+    <servlet-class>ru.curs.mellophone.web.ProcessLogin</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>ProcessLogin</servlet-name>
@@ -80,7 +80,7 @@
     <description></description>
     <display-name>ProcessLogin2</display-name>
     <servlet-name>ProcessLogin2</servlet-name>
-    <servlet-class>ru.curs.authserver.web.ProcessLogin2</servlet-class>
+    <servlet-class>ru.curs.mellophone.web.ProcessLogin2</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>ProcessLogin2</servlet-name>
@@ -90,7 +90,7 @@
     <description></description>
     <display-name>ProcessChangePwd</display-name>
     <servlet-name>ProcessChangePwd</servlet-name>
-    <servlet-class>ru.curs.authserver.web.ProcessChangePwd</servlet-class>
+    <servlet-class>ru.curs.mellophone.web.ProcessChangePwd</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>ProcessChangePwd</servlet-name>
@@ -100,7 +100,7 @@
     <description></description>
     <display-name>ProcessAuthenticationGif</display-name>
     <servlet-name>ProcessAuthenticationGif</servlet-name>
-    <servlet-class>ru.curs.authserver.web.ProcessAuthenticationGif</servlet-class>
+    <servlet-class>ru.curs.mellophone.web.ProcessAuthenticationGif</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>ProcessAuthenticationGif</servlet-name>
@@ -110,7 +110,7 @@
     <description></description>
     <display-name>ProcessImportUsers</display-name>
     <servlet-name>ProcessImportUsers</servlet-name>
-    <servlet-class>ru.curs.authserver.web.ProcessImportUsers</servlet-class>
+    <servlet-class>ru.curs.mellophone.web.ProcessImportUsers</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>ProcessImportUsers</servlet-name>
@@ -120,7 +120,7 @@
     <description></description>
     <display-name>ProcessImportGroupsProviders</display-name>
     <servlet-name>ProcessImportGroupsProviders</servlet-name>
-    <servlet-class>ru.curs.authserver.web.ProcessImportGroupsProviders</servlet-class>
+    <servlet-class>ru.curs.mellophone.web.ProcessImportGroupsProviders</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>ProcessImportGroupsProviders</servlet-name>
@@ -130,7 +130,7 @@
     <description></description>
     <display-name>ProcessChangeUserPwd</display-name>
     <servlet-name>ProcessChangeUserPwd</servlet-name>
-    <servlet-class>ru.curs.authserver.web.ProcessChangeUserPwd</servlet-class>
+    <servlet-class>ru.curs.mellophone.web.ProcessChangeUserPwd</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>ProcessChangeUserPwd</servlet-name>
