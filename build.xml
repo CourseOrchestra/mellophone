@@ -1,0 +1,61 @@
+<!DOCTYPE project>
+<project name="AuthServer" default="war">
+	<!-- 
+	ВНИМАНИЕ! Чтобы данный скрипт заработал:
+	1) Пропишите в системной переменной JAVA_HOME путь к установленному в системе JDK
+	2) Скопируйте файл build.properties.template в build.properties и пропишите в нём 
+	путь к установленному у вас Tomcat
+	-->
+
+	<property file="build.properties" />
+	
+	<path id="libraries">
+		<fileset dir="WebContent/WEB-INF/lib" includes="*.jar" />
+		<fileset dir="${tomcat.home}/lib" includes="*.jar" />
+	</path>
+
+	<target name="clean">
+		<echo>Cleaning the build and destination directories</echo>
+		<delete dir="wininstall" />		
+		<delete dir="build" />
+	</target>
+
+	<target name="init" depends="clean">
+		<echo>Creating the required directories</echo>
+		<mkdir dir="wininstall" />		
+		<mkdir dir="wininstall/config" />		
+		<mkdir dir="build" />
+		<mkdir dir="build/WEB-INF/classes" />
+		<mkdir dir="build/WEB-INF/lib" />
+	</target>
+
+	<target name="compile" depends="init">
+		<echo>Compile the source files</echo>
+		<javac  destdir="build/WEB-INF/classes" encoding="UTF-8">
+			<src>
+			  <pathelement path = "src"/>
+			</src>
+			<classpath refid="libraries" />
+ 		    <exclude name="ru/curs/authserver/test/*.*"/>			
+		</javac>
+	</target>
+
+	<target name="copy">
+		<copy todir="build">
+			<fileset dir="WebContent">
+				<exclude name="WEB-INF/classes/ru/curs/authserver/test/" />
+			</fileset>
+		</copy>
+		<copy todir="wininstall/config">
+				<fileset dir="src/config" />
+		</copy>
+	</target>
+
+	<target name="war" depends="compile, copy">
+		<echo>Building the war file</echo>
+		<war destfile="wininstall/AuthServer.war" webxml="build/WEB-INF/web.xml">
+			<fileset dir="build/" />
+		</war>
+	</target>
+
+</project>
