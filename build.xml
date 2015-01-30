@@ -1,5 +1,5 @@
 <!DOCTYPE project>
-<project name="AuthServer" default="war">
+<project name="mellophone" default="war">
 	<!-- 
 	ВНИМАНИЕ! Чтобы данный скрипт заработал:
 	1) Пропишите в системной переменной JAVA_HOME путь к установленному в системе JDK
@@ -53,7 +53,7 @@
 
 	<target name="war" depends="compile, copy">
 		<echo>Building the war file</echo>
-		<war destfile="wininstall/AuthServer.war" webxml="build/WEB-INF/web.xml">
+		<war destfile="wininstall/mellophone.war" webxml="build/WEB-INF/web.xml">
 			<fileset dir="build/" />
 		</war>
 	</target>
