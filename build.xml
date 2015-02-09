@@ -97,14 +97,14 @@
 	
 	<target name="ci.create.config.archive" description="Makes archive with config folder">
 		<echo>Makes archive with config folder</echo>		
-		<zip destfile="wininstall/artifacts/config-${mellophone.version}_build${BUILD_NUMBER}.zip">
+		<zip destfile="wininstall/artifacts/config-${mellophone.version}_build${os.BUILD_NUMBER}.zip">
 			<zipfileset dir="wininstall" includes="config*/**" />
 		</zip>		
 	</target>
 		
 	<target name="ci.war" depends="ci.init.properties.files, ci.compile, copy,  ci.write.app.version ,ci.create.config.archive">
 		<echo>Building the war file</echo>
-		<war destfile="wininstall/artifacts/${mellophone.war.file}_build${BUILD_NUMBER}.war" webxml="build/WEB-INF/web.xml">
+		<war destfile="wininstall/artifacts/${mellophone.war.file}_build${os.BUILD_NUMBER}.war" webxml="build/WEB-INF/web.xml">
 			<fileset dir="build/" />
 		</war>
 	</target>	
