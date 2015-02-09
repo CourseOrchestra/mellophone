@@ -120,7 +120,7 @@
 	
 		<property name="sc.war.file" value="mellophone-${sc.version}" />
 		<echo>Updating build number file</echo>
-		<echo file="build/WEB-INF/classes/fullversioninfo" message="${sc.version}" />	
+		<echo file="build/WEB-INF/classes/versioninfo" message="${sc.version}" />	
 	</target>	
 	
 	<target name="ci.svn.info" description="Read svn revision">
