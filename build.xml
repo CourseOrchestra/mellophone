@@ -74,7 +74,11 @@
 		</war>
 	</target>
 	
-	<target name="ci.war" depends="ci.compile, copy">
+	<target name="ci.init.properties.files" description="Create local properties files from templates for ci"> 
+		<copy verbose="true" file="build.properties.template" tofile="build.properties" />
+	</target>
+		
+	<target name="ci.war" depends="ci.init.properties.files, ci.compile, copy">
 		<echo>Building the war file</echo>
 		<war destfile="wininstall/mellophone.war" webxml="build/WEB-INF/web.xml">
 			<fileset dir="build/" />
