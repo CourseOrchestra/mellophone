@@ -111,22 +111,20 @@
 	
 	<target name="ci.write.app.version" depends="ci.svn.info" description="Write current app version to file">
 		<echo>Reading major version from src/version.properties</echo>
-		<property prefix="sc.major." file="src/version.properties"  />
-		<echo>${sc.major.version}</echo>
-		
-		<echo>3333</echo>
-		<property name="sc.version" value="${sc.major.version}.${sc.last.rev}" />
-		<echo>Mellophone version ${sc.version}</echo>
+		<property prefix="mellophone.major." file="src/version.properties"  />
+
+		<property name="mellophone.version" value="${mellophone.major.version}.${mellophone.last.rev}" />
+		<echo>Mellophone version ${mellophone.version}</echo>
 	
-		<property name="sc.war.file" value="mellophone-${sc.version}" />
+		<property name="mellophone.war.file" value="mellophone-${mellophone.version}" />
 		<echo>Updating build number file</echo>
-		<echo file="build/WEB-INF/classes/versioninfo" message="${sc.version}" />	
+		<echo file="build/WEB-INF/classes/versioninfo" message="${mellophone.version}" />	
 	</target>	
 	
 	<target name="ci.svn.info" description="Read svn revision">
-		<property name="sc.last.rev" value="${os.SVN_REVISION}"/>
+		<property name="mellophone.last.rev" value="${os.SVN_REVISION}"/>
 		
-		<echo>Last revision of code is ${sc.last.rev}</echo>
+		<echo>Last revision of code is ${mellophone.last.rev}</echo>
 	</target>	
 	
 
