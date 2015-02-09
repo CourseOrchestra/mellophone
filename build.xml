@@ -38,7 +38,7 @@
 	
 	<target name="ci.init" depends="clean">
 		<echo>Creating the required directories</echo>
-		<mkdir dir="artifacts" />	
+		<mkdir dir="wininstall/artifacts" />	
 		<mkdir dir="wininstall" />		
 		<mkdir dir="wininstall/config" />		
 		<mkdir dir="build" />
@@ -94,7 +94,7 @@
 	<target name="ci.create.config.archive" description="Makes archive with config folder">
 		<echo>Makes archive with config folder</echo>		
 		<zip destfile="wininstall/artifacts/config.zip">
-			<zipfileset dir="." includes="wininstall/config*/**" />
+			<zipfileset dir="wininstall" includes="config*/**" />
 		</zip>		
 	</target>
 		
