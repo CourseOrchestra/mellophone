@@ -79,7 +79,7 @@
 				<fileset dir="src/config" />
 		</copy>
 		
-		<copy verbose="true" file="src/fullversioninfo" tofile="build/WEB-INF/classes/fullversioninfo" />
+		<copy verbose="true" file="src/fullversioninfo" tofile="fullversioninfo" />
 
 	</target>
 
