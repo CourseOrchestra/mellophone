@@ -112,8 +112,9 @@
 	<target name="ci.write.app.version" depends="ci.svn.info" description="Write current app version to file">
 		<echo>Reading major version from src/version.properties</echo>
 		<property prefix="sc.major." file="src/version.properties"  />
-		<echo>111222</echo>
+		<echo>${sc.major.version}</echo>
 		<var name="sc.version" unset="true" />
+		<echo>3333</echo>
 		<property name="sc.version" value="${sc.major.version}.${sc.last.rev}" />
 		<echo>Mellophone version ${sc.version}</echo>
 		<var name="sc.war.file" unset="true" />
