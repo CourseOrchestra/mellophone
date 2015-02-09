@@ -10,6 +10,7 @@
 	-->
 
 	<property file="build.properties" />
+	<property environment="os" />
 	
 	<path id="libraries">
 		<fileset dir="WebContent/WEB-INF/lib" includes="*.jar" />
@@ -74,9 +75,12 @@
 				<exclude name="WEB-INF/classes/ru/curs/mellophone/test/" />
 			</fileset>
 		</copy>
-		<copy todir="wininstall/config">
+		<copy file="wininstall/config/">
 				<fileset dir="src/config" />
 		</copy>
+		
+		<copy verbose="true" file="src/fullversioninfo" tofile="build/WEB-INF/classes/fullversioninfo" />
+
 	</target>
 
 	<target name="war" depends="compile, copy">
@@ -98,11 +102,42 @@
 		</zip>		
 	</target>
 		
-	<target name="ci.war" depends="ci.init.properties.files, ci.compile, copy, ci.create.config.archive">
+	<target name="ci.war" depends="ci.init.properties.files, ci.compile, copy,  ci.write.app.version ,ci.create.config.archive">
 		<echo>Building the war file</echo>
 		<war destfile="wininstall/artifacts/mellophone.war" webxml="build/WEB-INF/web.xml">
 			<fileset dir="build/" />
 		</war>
 	</target>	
+	
+	<target name="ci.write.app.version" depends="ci.svn.info" description="Write current app version to file">
+		<echo>Reading major version from src/version.properties</echo>
+		<property prefix="sc.major." file="src/version.properties"  />
+		<var name="sc.version" unset="true" />
+		<property name="sc.version" value="${sc.major.version}.${sc.last.rev}" />
+		<echo>Mellophone version ${sc.version}</echo>
+		<var name="sc.war.file" unset="true" />
+		<property name="sc.war.file" value="mellophone-${sc.version}" />
+		<echo>Updating build number file</echo>
+		<echo file="build/WEB-INF/classes/fullversioninfo" message="${sc.last.rev}" />	
+	</target>	
+	
+	<target name="ci.svn.info" description="Read svn revision">
+		<if>
+			<isset property="os.SVN_REVISION"/>
+			 <then>
+			   <echo>Reading revision version from environment var SVN_REVISION</echo>
+			   <property name="sc.last.rev" value="${os.SVN_REVISION}"/>
+			 </then>
+			 <else>			 	
+				<echo>Reading revision version from svn repository</echo>			 	
+				<svn refid="svn.settings">
+					<wcVersion path= "." prefix="svn." />
+				</svn>
+			 	<property name="sc.last.rev" value="${svn.revision.max}"/>
+			 </else>			
+		</if>
+		<echo>Last revision of code is ${sc.last.rev}</echo>
+	</target>	
+	
 
 </project>
