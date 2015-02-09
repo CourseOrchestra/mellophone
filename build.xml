@@ -97,14 +97,14 @@
 	
 	<target name="ci.create.config.archive" description="Makes archive with config folder">
 		<echo>Makes archive with config folder</echo>		
-		<zip destfile="wininstall/artifacts/config.zip">
+		<zip destfile="wininstall/artifacts/config-${mellophone.version}.zip">
 			<zipfileset dir="wininstall" includes="config*/**" />
 		</zip>		
 	</target>
 		
 	<target name="ci.war" depends="ci.init.properties.files, ci.compile, copy,  ci.write.app.version ,ci.create.config.archive">
 		<echo>Building the war file</echo>
-		<war destfile="wininstall/artifacts/mellophone.war" webxml="build/WEB-INF/web.xml">
+		<war destfile="wininstall/artifacts/${mellophone.war.file}.war" webxml="build/WEB-INF/web.xml">
 			<fileset dir="build/" />
 		</war>
 	</target>	
@@ -122,8 +122,7 @@
 	</target>	
 	
 	<target name="ci.svn.info" description="Read svn revision">
-		<property name="mellophone.last.rev" value="${os.SVN_REVISION}"/>
-		
+		<property name="mellophone.last.rev" value="${os.SVN_REVISION}"/>		
 		<echo>Last revision of code is ${mellophone.last.rev}</echo>
 	</target>	
 	
