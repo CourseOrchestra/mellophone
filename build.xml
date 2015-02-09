@@ -14,6 +14,11 @@
 		<fileset dir="${tomcat.home}/lib" includes="*.jar" />
 	</path>
 
+	<path id="ci.libraries">
+		<fileset dir="WebContent/WEB-INF/lib" includes="*.jar" />
+		<fileset dir="${ci.tomcat.dir}/lib" includes="*.jar" />
+	</path>
+		
 	<target name="clean">
 		<echo>Cleaning the build and destination directories</echo>
 		<delete dir="wininstall" />		
@@ -40,6 +45,17 @@
 		</javac>
 	</target>
 
+	<target name="ci.compile" depends="init">
+		<echo>Compile the source files</echo>
+		<javac  destdir="build/WEB-INF/classes" encoding="UTF-8">
+			<src>
+			  <pathelement path = "src"/>
+			</src>
+			<classpath refid="ci.libraries" />
+ 		    <exclude name="ru/curs/mellophone/test/*.*"/>			
+		</javac>
+	</target>	
+	
 	<target name="copy">
 		<copy todir="build">
 			<fileset dir="WebContent">
@@ -57,5 +73,12 @@
 			<fileset dir="build/" />
 		</war>
 	</target>
+	
+	<target name="ci.war" depends="ci.compile, copy">
+		<echo>Building the war file</echo>
+		<war destfile="wininstall/mellophone.war" webxml="build/WEB-INF/web.xml">
+			<fileset dir="build/" />
+		</war>
+	</target>	
 
 </project>
