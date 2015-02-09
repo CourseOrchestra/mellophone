@@ -123,7 +123,7 @@
 	
 	<target name="ci.svn.info" description="Read svn revision">
 		<if>
-			<isset property="os.SVN_REVISION"/>
+			<isset property="SVN_REVISION"/>
 			 <then>
 			   <echo>Reading revision version from environment var SVN_REVISION</echo>
 			   <property name="sc.last.rev" value="${os.SVN_REVISION}"/>
