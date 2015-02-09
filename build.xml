@@ -5,6 +5,8 @@
 	1) Пропишите в системной переменной JAVA_HOME путь к установленному в системе JDK
 	2) Скопируйте файл build.properties.template в build.properties и пропишите в нём 
 	путь к установленному у вас Tomcat
+	3) Задачи (цели, задания, пути) начинающиеся на "ci." не использовать. Они необходимы и используются для continious integration 
+	на Jenkins.  
 	-->
 
 	<property file="build.properties" />
@@ -33,6 +35,16 @@
 		<mkdir dir="build/WEB-INF/classes" />
 		<mkdir dir="build/WEB-INF/lib" />
 	</target>
+	
+	<target name="ci.init" depends="clean">
+		<echo>Creating the required directories</echo>
+		<mkdir dir="artifacts" />	
+		<mkdir dir="wininstall" />		
+		<mkdir dir="wininstall/config" />		
+		<mkdir dir="build" />
+		<mkdir dir="build/WEB-INF/classes" />
+		<mkdir dir="build/WEB-INF/lib" />
+	</target>
 
 	<target name="compile" depends="init">
 		<echo>Compile the source files</echo>
@@ -45,7 +57,7 @@
 		</javac>
 	</target>
 
-	<target name="ci.compile" depends="init">
+	<target name="ci.compile" depends="ci.init">
 		<echo>Compile the source files</echo>
 		<javac  destdir="build/WEB-INF/classes" encoding="UTF-8">
 			<src>
@@ -77,10 +89,18 @@
 	<target name="ci.init.properties.files" description="Create local properties files from templates for ci"> 
 		<copy verbose="true" file="build.properties.template" tofile="build.properties" />
 	</target>
+	
+	
+	<target name="ci.create.config.archive" description="Makes archive with config folder">
+		<echo>Makes archive with config folder</echo>		
+		<zip destfile="wininstall/artifacts/config.zip">
+			<zipfileset dir="." includes="wininstall/config*/**" />
+		</zip>		
+	</target>
 		
-	<target name="ci.war" depends="ci.init.properties.files, ci.compile, copy">
+	<target name="ci.war" depends="ci.init.properties.files, ci.compile, copy, ci.create.config.archive">
 		<echo>Building the war file</echo>
-		<war destfile="wininstall/mellophone.war" webxml="build/WEB-INF/web.xml">
+		<war destfile="wininstall/artifacts/mellophone.war" webxml="build/WEB-INF/web.xml">
 			<fileset dir="build/" />
 		</war>
 	</target>	
