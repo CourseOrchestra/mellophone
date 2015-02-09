@@ -75,11 +75,11 @@
 				<exclude name="WEB-INF/classes/ru/curs/mellophone/test/" />
 			</fileset>
 		</copy>
-		<copy file="wininstall/config/">
-				<fileset dir="src/config" />
+		<copy todir="wininstall/config/">
+					<fileset dir="src/config" />
 		</copy>
+		<copy verbose="true" file="src\versioninfo" tofile="build/WEB-INF/classes/versioninfo" />
 		
-		<copy verbose="true" file="src/fullversioninfo" tofile="fullversioninfo" />
 
 	</target>
 
