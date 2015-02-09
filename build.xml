@@ -122,20 +122,8 @@
 	</target>	
 	
 	<target name="ci.svn.info" description="Read svn revision">
-		<if>
-			<isset property="SVN_REVISION"/>
-			 <then>
-			   <echo>Reading revision version from environment var SVN_REVISION</echo>
-			   <property name="sc.last.rev" value="${os.SVN_REVISION}"/>
-			 </then>
-			 <else>			 	
-				<echo>Reading revision version from svn repository</echo>			 	
-				<svn refid="svn.settings">
-					<wcVersion path= "." prefix="svn." />
-				</svn>
-			 	<property name="sc.last.rev" value="${svn.revision.max}"/>
-			 </else>			
-		</if>
+		<property name="sc.last.rev" value="${os.SVN_REVISION}"/>
+		
 		<echo>Last revision of code is ${sc.last.rev}</echo>
 	</target>	
 	
