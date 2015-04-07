@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.curs.ru/authserver config_test.xsd" xmlns="http://www.curs.ru/authserver">
+
+<!--
+	Для xmlfile в url может быть либо абсолютный путь, либо относительный (относительно 
+	директории установки Томката (чтобы можно было вносить правки 
+	в users.xml без перезагрузки Томката)) 
+-->
+	<xmlfile>
+		<logging>false</logging>
+		<url>D:/workspace/AuthServer/src/config/samples/users.xml</url>
+	</xmlfile>
+	
+	<ldapserver>
+		<logging>false</logging>
+		<servertype>ApacheDS</servertype>		
+		<url>ldap://localhost:10389</url>
+		<usessl>false</usessl>
+		<sat>Simple</sat>
+		<searchbase>ou=users,ou=system</searchbase>
+		<searchreturningattributes
+		  SID="entryUUID"
+		  login="uid"
+		  name="cn"
+		  email="mail"
+		  phone="homePhone"
+		  organization = "o"
+		  fax = "facsimileTelephoneNumber"	  
+		/>		
+		<searchfilterforuser>
+		  (&amp;(objectClass=inetOrgPerson)(uid=%s))
+  	    </searchfilterforuser>
+		<searchfilterforimport>
+		  (&amp;(objectClass=inetOrgPerson))
+		</searchfilterforimport>
+	</ldapserver>
+	
+	<sqlserver>
+		<logging>false</logging>
+		<url>jdbc:sqlserver://BORIS\\SQL8R2_RUS_TEST2:1145;databaseName=CARTRADE</url>
+		<connectionusername>sa</connectionusername>
+		<connectionpassword>F708420Dx</connectionpassword>
+		<table>Пользователи</table>
+		<fieldlogin>Логин</fieldlogin>
+		<fieldpassword>Пароль</fieldpassword>
+		<searchreturningattributes
+		  SID="Поле objectSid"		
+		  login="Логин" 
+		  name="Поле name"
+		  email="Поле email"
+		  phone="Поле phone"	
+		  organization = "" 
+		  fax = "Поле fax"	  
+		/>
+	</sqlserver>
+	
+	<sqlserver>
+		<logging>false</logging>
+		<url>jdbc:postgresql://localhost:5432/test_db</url>
+		<connectionusername>postgres</connectionusername>
+		<connectionpassword>F708420Dx</connectionpassword>
+		<table>Пользователи</table>
+		<fieldlogin>Логин</fieldlogin>
+		<fieldpassword>Пароль</fieldpassword>
+		<searchreturningattributes
+		  SID="Поле objectSid"		
+		  login="Логин" 
+		  name="Поле name"
+		  email="Поле email"
+		  phone="Поле phone"	
+		  organization = "" 
+		  fax = "Поле fax"	  
+		/>
+	</sqlserver>
+	
+	<sqlserver>
+		<logging>false</logging>
+		<url>jdbc:oracle:thin:@localhost:1521:orcl</url>
+		<connectionusername>CARTRADE</connectionusername>
+		<connectionpassword>F708420Dx</connectionpassword>
+		<table>ПОЛЬЗОВАТЕЛИ</table>
+		<fieldlogin>Логин</fieldlogin>
+		<fieldpassword>Пароль</fieldpassword>
+		<searchreturningattributes
+		  SID="Поле objectSid"		
+		  login="Логин" 
+		  name="Поле name"
+		  email="Поле email"
+		  phone="Поле phone"	
+		  organization = "" 
+		  fax = "Поле fax"	  
+		/>
+	</sqlserver>
+	
+</config>
+
+
+
+
+
+
