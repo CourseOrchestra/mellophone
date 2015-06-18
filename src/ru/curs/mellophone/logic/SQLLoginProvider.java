@@ -315,6 +315,9 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 			if (s == null) {
 				s = field;
 			} else {
+				if (s.contains(field)) {
+					continue;
+				}
 				s = s + ", " + field;
 			}
 		}
