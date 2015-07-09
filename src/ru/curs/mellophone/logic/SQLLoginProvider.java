@@ -146,6 +146,15 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 				throw new SQLException(e);
 			}
 		}
+		if (getSQLServerType(url) == SQLServerType.ORACLE) {
+			try {
+				result = (Driver) Class.forName(
+						"oracle.jdbc.driver.OracleDriver").newInstance();
+				DriverManager.registerDriver(result);
+			} catch (Exception e) {
+				throw new SQLException(e);
+			}
+		}
 		return result;
 	}
 
