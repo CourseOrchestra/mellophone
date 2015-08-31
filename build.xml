@@ -45,6 +45,7 @@
 		<mkdir dir="build" />
 		<mkdir dir="build/WEB-INF/classes" />
 		<mkdir dir="build/WEB-INF/lib" />
+		<mkdir dir="build/WEB-INF/classes/images" />
 	</target>
 
 	<target name="compile" depends="init">
@@ -79,8 +80,11 @@
 					<fileset dir="src/config" />
 		</copy>
 		<copy verbose="true" file="src\versioninfo" tofile="build/WEB-INF/classes/versioninfo" />
-		
-
+		<copy verbose="true" file="src\log4j.dtd" tofile="build/WEB-INF/classes/log4j.dtd" />
+		<copy verbose="true" file="src\log4j.xml" tofile="build/WEB-INF/classes/log4j.xml" />
+		<copy todir="build/WEB-INF/classes/images">
+			<fileset dir="src/images"/>
+		</copy>
 	</target>
 
 	<target name="war" depends="compile, copy">
