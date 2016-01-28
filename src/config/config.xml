@@ -14,17 +14,33 @@
 	
 	
 	
-<!-- 	<xmlfile> -->
-<!-- 		<logging>true</logging> -->
-<!--         <sessiontimeout>0</sessiontimeout>		 -->
-<!-- 		<url> -->
-<!-- 		D:/workspace/AuthServer/WebContent/WEB-INF/classes/config/samples/users.xml -->
-<!-- 		</url> -->
-<!-- 	</xmlfile> -->
-			
+<!--
+		<url>http://share.kurs-it.ru:8080/</url>
+		<url>http://localhost:8082/mellophone/</url>
+--> 	
+
+<!--
+-->
+	<iasbpserver>
+		<logging>true</logging>	
+		<url>http://share.kurs-it.ru:8080/</url>
+	</iasbpserver>
+	
+	
+	
+<!--
+
+	<xmlfile>
+		<logging>true</logging>
+        <sessiontimeout>0</sessiontimeout>		
+		<url>
+		D:/workspace/mellophone/WebContent/WEB-INF/classes/config/samples/users.xml
+		</url>
+	</xmlfile>
+-->			
 		
 
-
+<!--
 	<sqlserver>
  		<logging>true</logging>
 		<url>jdbc:sqlserver://BORIS2\\SQL8R2_RUS_TEST2:1145;databaseName=showcase</url>
@@ -44,7 +60,7 @@
 		  fax = "Поле fax"	  
 		/>
 	</sqlserver>
-
+-->
 	
 	
 

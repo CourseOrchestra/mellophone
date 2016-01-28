@@ -130,6 +130,23 @@
                         </xs:sequence>                            
                     </xs:complexType>
                 </xs:element>
+                <xs:element name="iasbpserver">
+                    <xs:annotation>
+                        <xs:documentation>Коннектор к серверу ИАС БП Ространснадзора.</xs:documentation>
+                    </xs:annotation>
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element minOccurs="0" name="logging" type="xs:boolean"/>
+                            <xs:element minOccurs="0" name="sessiontimeout" type="xs:integer"/>                               
+                            <xs:element name="url">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                        </xs:sequence>                            
+                    </xs:complexType>
+                </xs:element>
                 <xs:element name="sqlserver">
                     <xs:annotation>
                         <xs:documentation>Коннектор к SQL-серверу.</xs:documentation>

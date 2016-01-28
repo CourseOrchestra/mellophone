@@ -136,4 +136,24 @@
     <servlet-name>ProcessChangeUserPwd</servlet-name>
     <url-pattern>/changeuserpwd</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>ProcessSetDjangoAuthId</display-name>
+    <servlet-name>ProcessSetDjangoAuthId</servlet-name>
+    <servlet-class>ru.curs.mellophone.web.ProcessSetDjangoAuthId</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ProcessSetDjangoAuthId</servlet-name>
+    <url-pattern>/setdjangoauthid</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>ProcessGetDjangoAuthId</display-name>
+    <servlet-name>ProcessGetDjangoAuthId</servlet-name>
+    <servlet-class>ru.curs.mellophone.web.ProcessGetDjangoAuthId</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ProcessGetDjangoAuthId</servlet-name>
+    <url-pattern>/getdjangoauthid</url-pattern>
+  </servlet-mapping>
 </web-app>

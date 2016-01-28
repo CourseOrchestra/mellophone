@@ -13,6 +13,9 @@ import java.util.TimerTask;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamSource;
 
@@ -238,9 +241,12 @@ public final class AuthManager {
 
 							curProvider.connect(login, password, ip, ch, pw);
 
-							if (!"SQLLoginProvider"
+							if ((!"SQLLoginProvider"
 									.equalsIgnoreCase(curProvider.getClass()
-											.getSimpleName())) {
+											.getSimpleName()))
+									&& (!"IASBPLoginProvider"
+											.equalsIgnoreCase(curProvider
+													.getClass().getSimpleName()))) {
 								curProvider.getUserInfoByName(ch, login, pw);
 								if ("".equals(sw.toString().trim())) {
 									throw EAuthServerLogic
@@ -249,6 +255,13 @@ public final class AuthManager {
 							}
 
 							userInfo.add(sw.toString().trim());
+
+							if ("IASBPLoginProvider"
+									.equalsIgnoreCase(curProvider.getClass()
+											.getSimpleName())) {
+								userInfo.add(((IASBPLoginProvider) curProvider)
+										.getDjangoauthid());
+							}
 
 						} finally {
 							ch.closeContext();
@@ -307,8 +320,13 @@ public final class AuthManager {
 		String authid = String.format("%016x", r.nextLong())
 				+ String.format("%016x", r.nextLong());
 
+		String djangoauthid = null;
+		if (userInfo.size() > 1) {
+			djangoauthid = userInfo.get(1);
+		}
+
 		authsessions.put(authid, new AuthSession(login, password,
-				result.get(0), authid, userInfo.get(0), ip));
+				result.get(0), authid, userInfo.get(0), ip, djangoauthid));
 		appsessions.put(sesid, authid);
 
 		lockouts.success(login);
@@ -440,7 +458,10 @@ public final class AuthManager {
 			as.lastAuthenticated = System.currentTimeMillis();
 		}
 
-		if (as.getUserInfo().trim().isEmpty()) {
+		if (as.getUserInfo().trim().isEmpty()
+				&& (as.config != null)
+				&& (!"IASBPLoginProvider".equalsIgnoreCase(as.config.getClass()
+						.getSimpleName()))) {
 			try {
 				ProviderContextHolder context = as.config.newContextHolder();
 				try {
@@ -760,6 +781,98 @@ public final class AuthManager {
 	}
 
 	/**
+	 * Устанавливает взаимосвязь сессии приложения джанго, сессии аутентификации
+	 * джанго и сессии аутентификации мелофона.
+	 * 
+	 * @param djangosesid
+	 *            Идентификатор сессии приложения джанго
+	 * @param djangoauthid
+	 *            Идентификатор сессии аутентификации джанго
+	 * @param login
+	 *            Логин пользователя
+	 * @param sid
+	 *            SID пользователя
+	 * 
+	 * @throws EAuthServerLogic
+	 *             В случае ошибки
+	 * 
+	 */
+	public void setDjangoAuthId(final String djangosesid,
+			final String djangoauthid, final String login, final String sid)
+			throws EAuthServerLogic {
+
+		String authid = appsessions.get(djangosesid);
+		if (authid != null) {
+			ArrayList<String> apps = new ArrayList<String>();
+			for (String app : appsessions.keySet()) {
+				if (authid.equals(appsessions.get(app))) {
+					apps.add(app);
+				}
+			}
+			for (String app : apps) {
+				appsessions.remove(app);
+			}
+			authsessions.remove(authid);
+		}
+
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		try {
+			XMLStreamWriter xw = XMLOutputFactory.newInstance()
+					.createXMLStreamWriter(pw);
+			xw.writeStartDocument("utf-8", "1.0");
+			xw.writeEmptyElement("user");
+			xw.writeAttribute("login", login);
+			xw.writeAttribute("SID", sid);
+			xw.writeEndDocument();
+			xw.flush();
+		} catch (XMLStreamException e) {
+			throw EAuthServerLogic.create(e.getMessage());
+		}
+
+		SecureRandom r = new SecureRandom();
+		authid = String.format("%016x", r.nextLong())
+				+ String.format("%016x", r.nextLong());
+
+		authsessions.put(authid, new AuthSession(login, null, null, authid, sw
+				.toString().trim(), null, djangoauthid));
+		appsessions.put(djangosesid, authid);
+
+	}
+
+	/**
+	 * Получает djangoauthid по переданному djangosesid.
+	 * 
+	 * @param djangosesid
+	 *            Идентификатор сессии приложения джанго
+	 * @param pw
+	 *            PrintWriter, в который выводится информация о пользователе в
+	 *            формате JSON
+	 * 
+	 * @throws EAuthServerLogic
+	 *             Если сессия с идентификатором djangosesid не
+	 *             аутентифицирована
+	 * 
+	 */
+	public void getDjangoAuthId(final String djangosesid, PrintWriter pw)
+			throws EAuthServerLogic {
+		String authid = appsessions.get(djangosesid);
+		if (authid == null) {
+			throw EAuthServerLogic.create(String.format(SESID_NOT_AUTH,
+					djangosesid + "__1"));
+		}
+
+		AuthSession as = authsessions.get(authid);
+		if (as == null) {
+			throw EAuthServerLogic.create(String.format(SESID_NOT_AUTH,
+					djangosesid + "__2"));
+		}
+
+		pw.append("{\"django_auth_id\": \"" + as.djangoauthid + "\"}");
+
+	}
+
+	/**
 	 * Аутентифицированная сессия. Содержит закэшированный (в оперативной
 	 * памяти) логин/пароль (для доступа к контексту LDAP, при необходимости) и
 	 * ссылку на конфигурацию LDAP-сервера
@@ -771,17 +884,20 @@ public final class AuthManager {
 		private final String authid;
 		private final String userInfo;
 		private final String ip;
+		private final String djangoauthid;
 		private long lastAuthenticated = System.currentTimeMillis();
 
 		public AuthSession(String name, String pwd,
 				AbstractLoginProvider config, final String authid,
-				final String userInfo, final String ip) {
+				final String userInfo, final String ip,
+				final String djangoauthid) {
 			this.name = name;
 			this.pwd = pwd;
 			this.config = config;
 			this.authid = authid;
 			this.userInfo = userInfo;
 			this.ip = ip;
+			this.djangoauthid = djangoauthid;
 
 		}
 
@@ -843,6 +959,12 @@ public final class AuthManager {
 				@Override
 				void startElement(Attributes attributes) {
 					loginProviders.add(new HTTPLoginProvider());
+				}
+			});
+			actions.put("iasbpserver", new ParserAction() {
+				@Override
+				void startElement(Attributes attributes) {
+					loginProviders.add(new IASBPLoginProvider());
 				}
 			});
 			actions.put("xmlfile", new ParserAction() {
