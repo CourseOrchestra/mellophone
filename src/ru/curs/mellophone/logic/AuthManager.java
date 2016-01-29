@@ -344,14 +344,26 @@ public final class AuthManager {
 	 */
 	public void logout(String sesid) {
 		String authid = appsessions.get(sesid);
-		if (authid == null)
+		if (authid == null) {
 			return;
+		}
+
+		AuthSession as = authsessions.get(authid);
+		if ("IASBPLoginProvider".equalsIgnoreCase(as.config.getClass()
+				.getSimpleName())) {
+			((IASBPLoginProvider) as.config).disconnect(as.name,
+					as.djangoauthid);
+		}
+
 		ArrayList<String> apps = new ArrayList<String>();
-		for (String app : appsessions.keySet())
-			if (authid.equals(appsessions.get(app)))
+		for (String app : appsessions.keySet()) {
+			if (authid.equals(appsessions.get(app))) {
 				apps.add(app);
-		for (String app : apps)
+			}
+		}
+		for (String app : apps) {
 			appsessions.remove(app);
+		}
 
 		authsessions.remove(authid);
 	}
@@ -367,6 +379,13 @@ public final class AuthManager {
 		for (AuthSession as : authsessions.values()) {
 			if (as.lastAuthenticated + MILLISECSINMINUTE * sessionTimeout < System
 					.currentTimeMillis()) {
+
+				if ("IASBPLoginProvider".equalsIgnoreCase(as.config.getClass()
+						.getSimpleName())) {
+					((IASBPLoginProvider) as.config).disconnect(as.name,
+							as.djangoauthid);
+				}
+
 				auths.add(as.authid);
 			}
 		}
@@ -801,6 +820,8 @@ public final class AuthManager {
 			final String djangoauthid, final String login, final String sid)
 			throws EAuthServerLogic {
 
+		logout(djangosesid);
+
 		String authid = appsessions.get(djangosesid);
 		if (authid != null) {
 			ArrayList<String> apps = new ArrayList<String>();
@@ -834,9 +855,24 @@ public final class AuthManager {
 		authid = String.format("%016x", r.nextLong())
 				+ String.format("%016x", r.nextLong());
 
-		authsessions.put(authid, new AuthSession(login, null, null, authid, sw
+		AbstractLoginProvider iasbp = null;
+		for (AbstractLoginProvider p : loginProviders) {
+			if ("IASBPLoginProvider".equalsIgnoreCase(p.getClass()
+					.getSimpleName())) {
+				iasbp = p;
+				break;
+			}
+		}
+
+		authsessions.put(authid, new AuthSession(login, null, iasbp, authid, sw
 				.toString().trim(), null, djangoauthid));
 		appsessions.put(djangosesid, authid);
+
+		if ((iasbp != null) && (iasbp.getLogger() != null)) {
+			iasbp.getLogger().debug(
+					"Логин пользователя из ИАС БП '" + login
+							+ "' посредством setDjangoAuthId успешен!");
+		}
 
 	}
 

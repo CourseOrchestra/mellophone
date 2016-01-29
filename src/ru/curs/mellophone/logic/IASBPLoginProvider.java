@@ -7,6 +7,7 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -111,12 +112,7 @@ final class IASBPLoginProvider extends AbstractLoginProvider {
 
 					message = jo.getString("error");
 
-					// message = TextUtils.recode(message, "ISO-8859-1",
-					// "UTF-8");
-
-					// message = new String(message.getBytes("UTF-8"),
-					// "Cp1251");
-
+					message = StringEscapeUtils.unescapeJava(message);
 				}
 			} else {
 				message = "HTTP-запрос проверки пользователя в ИАС БП вернул пустые данные.";
@@ -149,6 +145,69 @@ final class IASBPLoginProvider extends AbstractLoginProvider {
 
 		if (!success) {
 			throw EAuthServerLogic.create(message);
+		}
+
+	}
+
+	void disconnect(String login, String djangoauthidDisconnect) {
+
+		if (getLogger() != null) {
+			getLogger().debug("LogoutUrl='" + getLogoutUrl() + "'");
+		}
+
+		boolean success = false;
+		String message = "";
+
+		CloseableHttpClient httpclient = HttpClientBuilder.create().build();
+		try {
+			HttpPost httppost = new HttpPost(getLogoutUrl());
+
+			httppost.setHeader("Content-Type",
+					"application/json; charset=utf-8");
+
+			httppost.setEntity(new StringEntity(String.format(
+					"django_auth_id=%s", djangoauthidDisconnect)));
+
+			HttpResponse response = httpclient.execute(httppost);
+
+			HttpEntity resEntity = response.getEntity();
+
+			if (resEntity != null) {
+				String resContent = EntityUtils.toString(resEntity);
+				if (response.getStatusLine().getStatusCode() == HTTP_OK) {
+					success = true;
+				} else {
+					message = resContent;
+
+					message = StringEscapeUtils.unescapeJava(message);
+				}
+			} else {
+				message = "HTTP-запрос логаута пользователя в ИАС БП вернул пустые данные.";
+			}
+
+			EntityUtils.consume(resEntity);
+
+		} catch (Exception e) {
+			message = e.getMessage();
+		} finally {
+			try {
+				httpclient.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		if (getLogger() != null) {
+			if (success) {
+				getLogger().debug(
+						"Логаут пользователя '" + login + "' из '"
+								+ getLogoutUrl() + "' успешен!");
+			} else {
+				getLogger().debug(
+						"Логаут пользователя '" + login + "' из '"
+								+ getLogoutUrl() + "' не успешен по причине: "
+								+ message);
+			}
 		}
 
 	}
