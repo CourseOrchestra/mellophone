@@ -107,10 +107,7 @@ final class IASBPLoginProvider extends AbstractLoginProvider {
 								+ e.getMessage();
 					}
 				} else {
-					JSONTokener jt = new JSONTokener(resContent);
-					JSONObject jo = new JSONObject(jt);
-
-					message = jo.getString("error");
+					message = resContent;
 
 					message = StringEscapeUtils.unescapeJava(message);
 				}
