@@ -812,29 +812,17 @@ public final class AuthManager {
 	 * @param sid
 	 *            SID пользователя
 	 * 
+	 * @return authsesid
+	 * 
 	 * @throws EAuthServerLogic
 	 *             В случае ошибки
 	 * 
 	 */
-	public void setDjangoAuthId(final String djangosesid,
+	public String setDjangoAuthId(final String djangosesid,
 			final String djangoauthid, final String login, final String sid)
 			throws EAuthServerLogic {
 
 		logout(djangosesid);
-
-		String authid = appsessions.get(djangosesid);
-		if (authid != null) {
-			ArrayList<String> apps = new ArrayList<String>();
-			for (String app : appsessions.keySet()) {
-				if (authid.equals(appsessions.get(app))) {
-					apps.add(app);
-				}
-			}
-			for (String app : apps) {
-				appsessions.remove(app);
-			}
-			authsessions.remove(authid);
-		}
 
 		StringWriter sw = new StringWriter();
 		PrintWriter pw = new PrintWriter(sw);
@@ -852,7 +840,7 @@ public final class AuthManager {
 		}
 
 		SecureRandom r = new SecureRandom();
-		authid = String.format("%016x", r.nextLong())
+		String authid = String.format("%016x", r.nextLong())
 				+ String.format("%016x", r.nextLong());
 
 		AbstractLoginProvider iasbp = null;
@@ -874,6 +862,8 @@ public final class AuthManager {
 							+ "' посредством setDjangoAuthId успешен!");
 		}
 
+		return authid;
+
 	}
 
 	/**
@@ -881,6 +871,12 @@ public final class AuthManager {
 	 * 
 	 * @param djangosesid
 	 *            Идентификатор сессии приложения джанго
+	 * 
+	 * 
+	 * @param authsesid
+	 *            Идентификатор сессии аутентификации мелофона из куки
+	 * 
+	 * 
 	 * @param pw
 	 *            PrintWriter, в который выводится информация о пользователе в
 	 *            формате JSON
@@ -890,18 +886,37 @@ public final class AuthManager {
 	 *             аутентифицирована
 	 * 
 	 */
-	public void getDjangoAuthId(final String djangosesid, PrintWriter pw)
-			throws EAuthServerLogic {
-		String authid = appsessions.get(djangosesid);
-		if (authid == null) {
-			throw EAuthServerLogic.create(String.format(SESID_NOT_AUTH,
-					djangosesid + "__1"));
-		}
+	public void getDjangoAuthId(final String djangosesid,
+			final String authsesid, PrintWriter pw) throws EAuthServerLogic {
 
-		AuthSession as = authsessions.get(authid);
-		if (as == null) {
-			throw EAuthServerLogic.create(String.format(SESID_NOT_AUTH,
-					djangosesid + "__2"));
+		AuthSession as = null;
+
+		if (authsesid == null) {
+			String authid = appsessions.get(djangosesid);
+			if (authid == null) {
+				throw EAuthServerLogic
+						.create(String.format(SESID_NOT_AUTH, djangosesid)
+								+ " Подробности: authsesid == null и не найден djangosesid.");
+			}
+
+			as = authsessions.get(authid);
+			if (as == null) {
+				throw EAuthServerLogic
+						.create(String.format(SESID_NOT_AUTH, djangosesid)
+								+ " Подробности: authsesid == null и не найден authid.");
+			}
+		} else {
+			as = authsessions.get(authsesid);
+			if (as == null) {
+				throw EAuthServerLogic
+						.create(String.format(SESID_NOT_AUTH, djangosesid)
+								+ " Подробности: authsesid != null, но не найден AuthSession.");
+			}
+
+			if (appsessions.get(djangosesid) == null) {
+				appsessions.put(djangosesid, authsesid);
+			}
+
 		}
 
 		pw.append("{\"django_auth_id\": \"" + as.djangoauthid + "\"}");

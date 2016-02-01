@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -28,10 +29,30 @@ public class ProcessGetDjangoAuthId extends BaseProcessorServlet {
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
 
+		// -----------------------------------------------
+
+		String authsesid = null;
+		Cookie cookAuthsesid = null;
+
+		Cookie[] cookies = request.getCookies();
+		if (cookies != null) {
+			for (int i = 0; i < cookies.length; i++) {
+				if ("authsesid".equals(cookies[i].getName())) {
+					cookAuthsesid = cookies[i];
+					break;
+				}
+			}
+		}
+		if (cookAuthsesid != null) {
+			authsesid = cookAuthsesid.getValue();
+		}
+		// -----------------------------------------------
+
 		try {
 			try {
 				PrintWriter pw = response.getWriter();
-				AuthManager.getTheManager().getDjangoAuthId(djangosesid, pw);
+				AuthManager.getTheManager().getDjangoAuthId(djangosesid,
+						authsesid, pw);
 				pw.flush();
 				response.setStatus(HttpServletResponse.SC_OK);
 			} catch (EAuthServerLogic e) {

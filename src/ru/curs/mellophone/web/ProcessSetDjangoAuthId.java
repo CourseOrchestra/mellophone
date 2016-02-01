@@ -3,6 +3,7 @@ package ru.curs.mellophone.web;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -34,10 +35,14 @@ public class ProcessSetDjangoAuthId extends BaseProcessorServlet {
 				String login = getRequestParam(request, "login");
 				String sid = getRequestParam(request, "sid");
 
-				AuthManager.getTheManager().setDjangoAuthId(djangosesid,
-						djangoauthid, login, sid);
+				String authid = AuthManager.getTheManager().setDjangoAuthId(
+						djangosesid, djangoauthid, login, sid);
 
 				response.setStatus(HttpServletResponse.SC_OK);
+
+				Cookie cookie = new Cookie("authsesid", authid);
+				response.addCookie(cookie);
+
 			} catch (EAuthServerLogic e) {
 				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 				response.getWriter().append(e.getMessage()).flush();
