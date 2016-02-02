@@ -40,14 +40,14 @@ public class ProcessSetDjangoAuthId extends BaseProcessorServlet {
 				String authid = AuthManager.getTheManager().setDjangoAuthId(
 						djangosesid, djangoauthid, login, sid);
 
+				Cookie cookie = new Cookie("authsesid", authid);
+				response.addCookie(cookie);
+
 				PrintWriter pw = response.getWriter();
 				pw.append(djangoCallback + "();");
 				pw.flush();
 
 				response.setStatus(HttpServletResponse.SC_OK);
-
-				Cookie cookie = new Cookie("authsesid", authid);
-				response.addCookie(cookie);
 
 			} catch (EAuthServerLogic e) {
 				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
