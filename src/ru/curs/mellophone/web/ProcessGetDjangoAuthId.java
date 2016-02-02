@@ -57,8 +57,13 @@ public class ProcessGetDjangoAuthId extends BaseProcessorServlet {
 				pw.flush();
 				response.setStatus(HttpServletResponse.SC_OK);
 			} catch (EAuthServerLogic e) {
+
+				PrintWriter pw = response.getWriter();
+				pw.append(djangoCallback + "();");
+				pw.flush();
+
 				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-				response.getWriter().append(e.getMessage()).flush();
+				// response.getWriter().append(e.getMessage()).flush();
 			}
 		} finally {
 			response.flushBuffer();
