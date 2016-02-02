@@ -835,6 +835,7 @@ public final class AuthManager {
 			xw.writeStartDocument("utf-8", "1.0");
 			xw.writeEmptyElement("user");
 			xw.writeAttribute("login", login);
+			xw.writeAttribute("name", login);
 			xw.writeAttribute("SID", sid);
 			xw.writeEndDocument();
 			xw.flush();
