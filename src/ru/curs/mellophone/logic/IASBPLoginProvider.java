@@ -96,6 +96,7 @@ final class IASBPLoginProvider extends AbstractLoginProvider {
 						xw.writeStartDocument("utf-8", "1.0");
 						xw.writeEmptyElement("user");
 						xw.writeAttribute("login", jo.getString("l"));
+						xw.writeAttribute("name", jo.getString("l"));
 						xw.writeAttribute("SID",
 								String.valueOf(jo.getLong("sid")));
 						xw.writeEndDocument();
