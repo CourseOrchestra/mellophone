@@ -349,8 +349,9 @@ public final class AuthManager {
 		}
 
 		AuthSession as = authsessions.get(authid);
-		if ("IASBPLoginProvider".equalsIgnoreCase(as.config.getClass()
-				.getSimpleName())) {
+		if ((as.config != null)
+				&& "IASBPLoginProvider".equalsIgnoreCase(as.config.getClass()
+						.getSimpleName())) {
 			((IASBPLoginProvider) as.config).disconnect(as.name,
 					as.djangoauthid);
 		}
@@ -380,8 +381,9 @@ public final class AuthManager {
 			if (as.lastAuthenticated + MILLISECSINMINUTE * sessionTimeout < System
 					.currentTimeMillis()) {
 
-				if ("IASBPLoginProvider".equalsIgnoreCase(as.config.getClass()
-						.getSimpleName())) {
+				if ((as.config != null)
+						&& "IASBPLoginProvider".equalsIgnoreCase(as.config
+								.getClass().getSimpleName())) {
 					((IASBPLoginProvider) as.config).disconnect(as.name,
 							as.djangoauthid);
 				}
