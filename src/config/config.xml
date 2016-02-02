@@ -7,7 +7,6 @@
 	<common>
 		<threadcount>1</threadcount>
 <!--  		<sessiontimeout>1440</sessiontimeout>		 -->
-  		<sessiontimeout>1</sessiontimeout> 
 		<authsessions initialCapacity="10000" loadFactor="80" concurrencyLevel="128"/>
 		<appsessions initialCapacity="10000" loadFactor="80" concurrencyLevel="128"/>
 	</common>
@@ -20,15 +19,15 @@
 --> 	
 
 <!--
--->
 	<iasbpserver>
 		<logging>true</logging>	
 		<url>http://share.kurs-it.ru:8080/</url>
 	</iasbpserver>
-	
+-->	
 	
 	
 <!--
+-->
 
 	<xmlfile>
 		<logging>true</logging>
@@ -37,7 +36,7 @@
 		D:/workspace/mellophone/WebContent/WEB-INF/classes/config/samples/users.xml
 		</url>
 	</xmlfile>
--->			
+			
 		
 
 <!--

@@ -22,11 +22,12 @@ public class ProcessGetDjangoAuthId extends BaseProcessorServlet {
 			HttpServletResponse response) throws ServletException, IOException {
 
 		String djangosesid = request.getParameter("sesid");
+		String djangoCallback = request.getParameter("callback");
 
 		response.reset();
 		setHeaderNoCache(response);
 
-		response.setContentType("application/json");
+		response.setContentType("text/html");
 		response.setCharacterEncoding("UTF-8");
 
 		// -----------------------------------------------
@@ -52,7 +53,7 @@ public class ProcessGetDjangoAuthId extends BaseProcessorServlet {
 			try {
 				PrintWriter pw = response.getWriter();
 				AuthManager.getTheManager().getDjangoAuthId(djangosesid,
-						authsesid, pw);
+						authsesid, djangoCallback, pw);
 				pw.flush();
 				response.setStatus(HttpServletResponse.SC_OK);
 			} catch (EAuthServerLogic e) {

@@ -872,10 +872,11 @@ public final class AuthManager {
 	 * @param djangosesid
 	 *            Идентификатор сессии приложения джанго
 	 * 
-	 * 
 	 * @param authsesid
 	 *            Идентификатор сессии аутентификации мелофона из куки
 	 * 
+	 * @param djangoCallback
+	 *            Функция обратного вызова из джанго
 	 * 
 	 * @param pw
 	 *            PrintWriter, в который выводится информация о пользователе в
@@ -887,7 +888,8 @@ public final class AuthManager {
 	 * 
 	 */
 	public void getDjangoAuthId(final String djangosesid,
-			final String authsesid, PrintWriter pw) throws EAuthServerLogic {
+			final String authsesid, final String djangoCallback, PrintWriter pw)
+			throws EAuthServerLogic {
 
 		AuthSession as = null;
 
@@ -919,7 +921,8 @@ public final class AuthManager {
 
 		}
 
-		pw.append("{\"django_auth_id\": \"" + as.djangoauthid + "\"}");
+		pw.append(djangoCallback + "({\"django_auth_id\": \"" + as.djangoauthid
+				+ "\"});");
 
 	}
 

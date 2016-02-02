@@ -1,6 +1,7 @@
 package ru.curs.mellophone.web;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -34,9 +35,14 @@ public class ProcessSetDjangoAuthId extends BaseProcessorServlet {
 				String djangoauthid = getRequestParam(request, "djangoauthid");
 				String login = getRequestParam(request, "login");
 				String sid = getRequestParam(request, "sid");
+				String djangoCallback = request.getParameter("callback");
 
 				String authid = AuthManager.getTheManager().setDjangoAuthId(
 						djangosesid, djangoauthid, login, sid);
+
+				PrintWriter pw = response.getWriter();
+				pw.append(djangoCallback + "();");
+				pw.flush();
 
 				response.setStatus(HttpServletResponse.SC_OK);
 
