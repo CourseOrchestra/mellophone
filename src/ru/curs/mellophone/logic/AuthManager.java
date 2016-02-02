@@ -349,7 +349,8 @@ public final class AuthManager {
 		}
 
 		AuthSession as = authsessions.get(authid);
-		if ((as.config != null)
+		if (!(sesid.contains("django"))
+				&& (as.config != null)
 				&& "IASBPLoginProvider".equalsIgnoreCase(as.config.getClass()
 						.getSimpleName())) {
 			((IASBPLoginProvider) as.config).disconnect(as.name,
