@@ -812,6 +812,8 @@ public final class AuthManager {
 	 *            Идентификатор сессии аутентификации джанго
 	 * @param login
 	 *            Логин пользователя
+	 * @param name
+	 *            Название пользователя
 	 * @param sid
 	 *            SID пользователя
 	 * 
@@ -822,8 +824,8 @@ public final class AuthManager {
 	 * 
 	 */
 	public String setDjangoAuthId(final String djangosesid,
-			final String djangoauthid, final String login, final String sid)
-			throws EAuthServerLogic {
+			final String djangoauthid, final String login, final String name,
+			final String sid) throws EAuthServerLogic {
 
 		logout(djangosesid);
 
@@ -835,7 +837,7 @@ public final class AuthManager {
 			xw.writeStartDocument("utf-8", "1.0");
 			xw.writeEmptyElement("user");
 			xw.writeAttribute("login", login);
-			xw.writeAttribute("name", login);
+			xw.writeAttribute("name", name);
 			xw.writeAttribute("SID", sid);
 			xw.writeEndDocument();
 			xw.flush();

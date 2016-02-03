@@ -34,11 +34,12 @@ public class ProcessSetDjangoAuthId extends BaseProcessorServlet {
 				String djangosesid = request.getParameter("sesid");
 				String djangoauthid = getRequestParam(request, "djangoauthid");
 				String login = getRequestParam(request, "login");
+				String name = getRequestParam(request, "name");
 				String sid = getRequestParam(request, "sid");
 				String djangoCallback = request.getParameter("callback");
 
 				String authid = AuthManager.getTheManager().setDjangoAuthId(
-						djangosesid, djangoauthid, login, sid);
+						djangosesid, djangoauthid, login, name, sid);
 
 				Cookie cookie = new Cookie("authsesid", authid);
 				response.addCookie(cookie);
