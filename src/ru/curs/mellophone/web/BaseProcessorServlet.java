@@ -46,6 +46,24 @@ public class BaseProcessorServlet extends HttpServlet {
 		return value;
 
 	}
+	
+	protected static final String getRequestParamDjango(HttpServletRequest req,
+			String name) throws UnsupportedEncodingException {
+
+		String value = req.getParameter(name);
+
+		if (value != null) {
+			
+			value = URLDecoder.decode(value, "UTF-8");
+
+			value = value.replace("AB4AFD63A4C", "%");
+			value = value.replace("D195B4C989F", "+");
+
+		}
+
+		return value;
+
+	}
 
 	private static String decodeParam(final String param)
 			throws UnsupportedEncodingException {

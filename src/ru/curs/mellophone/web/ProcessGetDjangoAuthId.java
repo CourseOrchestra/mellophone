@@ -21,8 +21,8 @@ public class ProcessGetDjangoAuthId extends BaseProcessorServlet {
 	protected void service(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 
-		String djangosesid = request.getParameter("sesid");
-		String djangoCallback = request.getParameter("callback");
+		String djangosesid = getRequestParamDjango(request, "sesid");
+		String djangoCallback = getRequestParamDjango(request, "callback");
 
 		response.reset();
 		setHeaderNoCache(response);
