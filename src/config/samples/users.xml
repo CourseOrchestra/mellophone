@@ -10,7 +10,31 @@
 	<user login="Сидоров" password="пасс3"
 		SID="5e599041-6a69-466e-b22c-f3003be536d9" name="Евгений Балмасов"
 		email="56@yandex.ru" phone="апе-43-67" organization = "org3" fax = "fax3"/> 
-    <user login="user111" password="pwd111"
+    <user login="user222" password="pwd222"
         SID="8dbf2a31-cfe6-4188-a2f0-0125481355ce" name="Алексей В. Васильев"
         email="12@yandex.ru" phone="123-56-78" organization = "org4" fax = "fax4"/>
+        
+        
+        
+    <user login="anlug" password="vjcrdf"
+        SID="8dbf2a31-cfe6-4188-a2f0-0125481355ce" name="Алексей В. Васильев"
+        email="12@yandex.ru" phone="123-56-78" organization = "org4" fax = "fax4"/>
+        
+        
+        
+<!--    
+             SID="odmin" name="Администратор"
+ -->
+        
+	<user login="admin" password="master"
+        SID="admin" name="Администратор"
+        email="12@yandex.ru" phone="123-56-78" organization = "org4" fax = "fax4"/>		
+
+        
+        
+    <user login="kulkov" password="kulkov" SID="S-1-5-21-1482476501-1035525444-682003330-7647" name="Кульков Евгений Евгеньевич" email="-" />        
+    
+    <user login="alibegov" password="alibegov" SID="S-1-5-21-1482476501-1035525444-682003330-15833" name="Алибегова Гулишат Алибеговна" email="test5@test2.ru" />    
+        
+        
 </users>
