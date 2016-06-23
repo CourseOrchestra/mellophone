@@ -1,7 +1,6 @@
 package ru.curs.mellophone.logic;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -120,13 +119,15 @@ public final class AuthManager {
 							.getContextClassLoader();
 					InputStream is = classLoader
 							.getResourceAsStream(GENERAL_PROPERTIES);
+
 					try (InputStreamReader reader = new InputStreamReader(is,
 							TextUtils.DEF_ENCODING)) {
 						prop.load(reader);
+						configPath = prop.getProperty(MELLOPHONE_CONFIG_PATH);
 					}
-				} catch (IOException e) {
+
+				} catch (Exception e) {
 				}
-				configPath = prop.getProperty(MELLOPHONE_CONFIG_PATH);
 			}
 
 			if (configPath == null) {
@@ -157,7 +158,7 @@ public final class AuthManager {
 
 			commonInitialize();
 
-		} catch (IOException e) {
+		} catch (Exception e) {
 			initializationError = e.getMessage();
 		} finally {
 			if (initializationError != null) {
