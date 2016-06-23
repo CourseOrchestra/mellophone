@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import ru.curs.mellophone.logic.AuthManager;
-import ru.curs.mellophone.logic.EAuthServerLogic;
 
 /**
  * Servlet implementation /logout?sesid=...
@@ -20,16 +19,9 @@ public class ProcessLogout extends BaseProcessorServlet {
 			HttpServletResponse response) throws ServletException, IOException {
 
 		try {
-			try {
+			String sesid = request.getParameter("sesid");
 
-				String sesid = request.getParameter("sesid");
-
-				AuthManager.getTheManager().logout(sesid);
-
-			} catch (EAuthServerLogic e) {
-				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-				response.getWriter().append(e.getMessage()).flush();
-			}
+			AuthManager.getTheManager().logout(sesid);
 		} finally {
 			response.flushBuffer();
 		}

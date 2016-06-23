@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import ru.curs.mellophone.logic.AuthManager;
-import ru.curs.mellophone.logic.EAuthServerLogic;
 
 /**
  * Servlet implementation /authentication.gif?sesid=...
@@ -60,66 +59,59 @@ public class ProcessAuthenticationGif extends BaseProcessorServlet {
 			HttpServletResponse response) throws ServletException, IOException {
 
 		try {
-			try {
+			Cookie cookAuthsesid = null;
 
-				Cookie cookAuthsesid = null;
+			String sesid = request.getParameter("sesid");
+			String authsesid = null;
 
-				String sesid = request.getParameter("sesid");
-				String authsesid = null;
-
-				Cookie[] cookies = request.getCookies();
-				if (cookies != null) {
-					for (int i = 0; i < cookies.length; i++) {
-						if ("authsesid".equals(cookies[i].getName())) {
-							cookAuthsesid = cookies[i];
-							break;
-						}
+			Cookie[] cookies = request.getCookies();
+			if (cookies != null) {
+				for (int i = 0; i < cookies.length; i++) {
+					if ("authsesid".equals(cookies[i].getName())) {
+						cookAuthsesid = cookies[i];
+						break;
 					}
 				}
-				if (cookAuthsesid != null)
-					authsesid = cookAuthsesid.getValue();
+			}
+			if (cookAuthsesid != null)
+				authsesid = cookAuthsesid.getValue();
 
-				authsesid = AuthManager.getTheManager().authenticationGif(
-						sesid, authsesid);
+			authsesid = AuthManager.getTheManager().authenticationGif(sesid,
+					authsesid);
 
-				// if ("AUTH_OK".equals(authsesid)) //DEBUG!!!!!!!!!!
-				// authsesid = "ww1";
+			// if ("AUTH_OK".equals(authsesid)) //DEBUG!!!!!!!!!!
+			// authsesid = "ww1";
 
-				response.reset();
-				setHeaderNoCache(response);
+			response.reset();
+			setHeaderNoCache(response);
 
-				response.setContentType("image/" + IMAGE_EXT);
-				response.setCharacterEncoding("UTF-8");
+			response.setContentType("image/" + IMAGE_EXT);
+			response.setCharacterEncoding("UTF-8");
 
-				response.setStatus(HttpServletResponse.SC_OK);
+			response.setStatus(HttpServletResponse.SC_OK);
 
-				if (authsesid == null) {
-					if (cookAuthsesid != null) {
-						cookAuthsesid.setMaxAge(0);
-						cookAuthsesid.setValue("");
-						response.addCookie(cookAuthsesid);
-					}
+			if (authsesid == null) {
+				if (cookAuthsesid != null) {
+					cookAuthsesid.setMaxAge(0);
+					cookAuthsesid.setValue("");
+					response.addCookie(cookAuthsesid);
+				}
 
-					setBanner(response, BannerType.btBW);
+				setBanner(response, BannerType.btBW);
+
+			} else {
+				if ("AUTH_OK".equals(authsesid)) {
+
+					setBanner(response, BannerType.btColor);
 
 				} else {
-					if ("AUTH_OK".equals(authsesid)) {
 
-						setBanner(response, BannerType.btColor);
+					Cookie cookie = new Cookie("authsesid", authsesid);
+					response.addCookie(cookie);
 
-					} else {
+					setBanner(response, BannerType.btColor);
 
-						Cookie cookie = new Cookie("authsesid", authsesid);
-						response.addCookie(cookie);
-
-						setBanner(response, BannerType.btColor);
-
-					}
 				}
-
-			} catch (EAuthServerLogic e) {
-				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-				response.getWriter().append(e.getMessage()).flush();
 			}
 		} finally {
 			response.flushBuffer();

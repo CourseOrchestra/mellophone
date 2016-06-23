@@ -1,6 +1,9 @@
 package ru.curs.mellophone.logic;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.SecureRandom;
@@ -8,11 +11,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.servlet.ServletContext;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -43,8 +48,10 @@ public final class AuthManager {
 	 */
 	public static final String DIR_CONFIG = "config/";
 
+	private static final String MELLOPHONE_CONFIG_PATH = "mellophone.config.path";
+	private static final String GENERAL_PROPERTIES = "general.properties";
+
 	private static final String ERROR_PARSING_CONFIG_XML = "Ошибка при разборе файла конфигурации config.xml: %s";
-	private static final String ABSENT_CONFIG_XML = "Отсутствует файл конфигурации WEB-INF\\classes\\config\\config.xml";
 
 	private static final String SESID_NOT_AUTH = "Сессия приложения с идентификатором %s не аутентифицирована.";
 	private static final String PROVIDER_ERROR = "При взаимодействии с логин-провайдером произошла следующая ошибка: %s";
@@ -64,9 +71,9 @@ public final class AuthManager {
 	private final LinkedList<AbstractLoginProvider> loginProviders = new LinkedList<AbstractLoginProvider>();
 
 	/** Список сессий аутентификации. */
-	private final ConcurrentHashMap<String, AuthSession> authsessions;
+	private ConcurrentHashMap<String, AuthSession> authsessions;
 	/** Привязка сессий приложений к сессиям аутентификации. */
-	private final ConcurrentHashMap<String, String> appsessions;
+	private ConcurrentHashMap<String, String> appsessions;
 
 	/** Параметры authsessions и appsessions. */
 	private int authsessionsInitialCapacity = 16;
@@ -87,20 +94,91 @@ public final class AuthManager {
 	/** Залоченные (за повторное использование паролей) пользователи. */
 	private final LockoutManager lockouts = new LockoutManager();
 
-	private AuthManager() throws EAuthServerLogic {
-		ClassLoader classLoader = Thread.currentThread()
-				.getContextClassLoader();
-		InputStream is;
-		if ("AppClassLoader".equalsIgnoreCase(classLoader.getClass()
-				.getSimpleName())) {
-			is = classLoader
-					.getResourceAsStream("ru/curs/authserver/test/config_test.xml");
-		} else {
-			is = classLoader.getResourceAsStream(DIR_CONFIG + "config.xml");
-			if (is == null) {
-				throw EAuthServerLogic.create(ABSENT_CONFIG_XML);
+	private String initializationError = null;
+
+	/** Ошибка при инициализации приложения. */
+	public String getInitializationError() {
+		return initializationError;
+	}
+
+	/**
+	 * Инициализация приложения в рабочем режиме.
+	 * 
+	 * @param servletContext
+	 *            ServletContext
+	 */
+	public void productionModeInitialize(final ServletContext servletContext) {
+
+		try {
+			String configPath = servletContext
+					.getInitParameter(MELLOPHONE_CONFIG_PATH);
+
+			if (configPath == null) {
+				Properties prop = new Properties();
+				try {
+					ClassLoader classLoader = Thread.currentThread()
+							.getContextClassLoader();
+					InputStream is = classLoader
+							.getResourceAsStream(GENERAL_PROPERTIES);
+					try (InputStreamReader reader = new InputStreamReader(is,
+							TextUtils.DEF_ENCODING)) {
+						prop.load(reader);
+					}
+				} catch (IOException e) {
+				}
+				configPath = prop.getProperty(MELLOPHONE_CONFIG_PATH);
+			}
+
+			if (configPath == null) {
+				configPath = servletContext.getRealPath("../../config.xml");
+			}
+
+			File configFile = new File(configPath);
+
+			if (!configFile.exists()) {
+				initializationError = "файл конфигурации "
+						+ configFile.getCanonicalPath() + " не существует.";
+				return;
+			}
+
+			// Читаем все настройки из XML...
+			ConfigParser p = new ConfigParser();
+			try {
+				SaxonTransformerFactory
+						.newInstance()
+						.newTransformer()
+						.transform(new StreamSource(configFile),
+								new SAXResult(p));
+			} catch (Exception e) {
+				initializationError = "произошла ошибка при чтении файла конфигурации "
+						+ configFile.getCanonicalPath() + " " + e.getMessage();
+				return;
+			}
+
+			commonInitialize();
+
+		} catch (IOException e) {
+			initializationError = e.getMessage();
+		} finally {
+			if (initializationError != null) {
+				initializationError = "Mellophone не инициализирован по причине: "
+						+ initializationError;
 			}
 		}
+
+	}
+
+	/**
+	 * Инициализация приложения для тестов.
+	 * 
+	 * @throws EAuthServerLogic
+	 *             исключение
+	 */
+	public void testModeInitialize() throws EAuthServerLogic {
+		ClassLoader classLoader = Thread.currentThread()
+				.getContextClassLoader();
+		InputStream is = classLoader
+				.getResourceAsStream("ru/curs/mellophone/test/config_test.xml");
 
 		// Читаем все настройки из XML...
 		ConfigParser p = new ConfigParser();
@@ -112,6 +190,10 @@ public final class AuthManager {
 					ERROR_PARSING_CONFIG_XML, e.getMessage()));
 		}
 
+		commonInitialize();
+	}
+
+	private void commonInitialize() {
 		authsessions = new ConcurrentHashMap<String, AuthSession>(
 				authsessionsInitialCapacity, authsessionsLoadFactor,
 				authsessionsConcurrencyLevel);
@@ -125,11 +207,7 @@ public final class AuthManager {
 			timerTimeout.schedule(new TimerTask() {
 				@Override
 				public void run() {
-					try {
-						AuthManager.getTheManager().logoutByTimer();
-					} catch (EAuthServerLogic e) {
-						e.printStackTrace();
-					}
+					AuthManager.getTheManager().logoutByTimer();
 				}
 			}, delay, delay);
 		}
@@ -139,14 +217,11 @@ public final class AuthManager {
 	 * Возвращает единственный экземпляр (синглетон) менеджера системы
 	 * аутентификации.
 	 * 
-	 * @throws EAuthServerLogic
-	 *             исключение
 	 */
-	public static AuthManager getTheManager() throws EAuthServerLogic {
+	public static AuthManager getTheManager() {
 		if (theMANAGER == null) {
 			theMANAGER = new AuthManager();
 		}
-
 		return theMANAGER;
 	}
 

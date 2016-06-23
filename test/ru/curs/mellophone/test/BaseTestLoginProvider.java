@@ -63,10 +63,11 @@ public class BaseTestLoginProvider {
 	@Before
 	public void beforeTest() {
 		try {
-			AuthManager.getTheManager().logout(SES_ID);
+			AuthManager.getTheManager().testModeInitialize();
 		} catch (EAuthServerLogic e) {
 			e.printStackTrace();
 		}
+		AuthManager.getTheManager().logout(SES_ID);
 	}
 
 	/**
