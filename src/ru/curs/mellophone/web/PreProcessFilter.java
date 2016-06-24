@@ -19,7 +19,6 @@ import ru.curs.mellophone.logic.AuthManager;
  */
 public class PreProcessFilter implements Filter {
 
-	private static final String WELCOME_PAGE = "welcome.jsp";
 	private static final String CACHE_CONTROL = "Cache-Control";
 
 	@Override
@@ -27,30 +26,29 @@ public class PreProcessFilter implements Filter {
 			final ServletResponse response, final FilterChain chain)
 			throws IOException, ServletException {
 		if (request instanceof HttpServletRequest) {
-			HttpServletRequest httpRequest = (HttpServletRequest) request;
+			// HttpServletRequest httpRequest = (HttpServletRequest) request;
 			HttpServletResponse httpResponse = (HttpServletResponse) response;
 
+			if (AuthManager.getTheManager().getInitializationError() != null) {
+				httpResponse.reset();
 
-				if (AuthManager.getTheManager().getInitializationError() != null) {
-					httpResponse.reset();
+				httpResponse.setHeader("Pragma", "no-cache");
+				httpResponse.setHeader(CACHE_CONTROL, "must-revalidate");
+				httpResponse.setHeader(CACHE_CONTROL, "no-cache");
+				httpResponse.setHeader(CACHE_CONTROL, "no-store");
+				httpResponse.setDateHeader("Expires", 0);
 
-					httpResponse.setHeader("Pragma", "no-cache");
-					httpResponse.setHeader(CACHE_CONTROL, "must-revalidate");
-					httpResponse.setHeader(CACHE_CONTROL, "no-cache");
-					httpResponse.setHeader(CACHE_CONTROL, "no-store");
-					httpResponse.setDateHeader("Expires", 0);
+				httpResponse.setContentType("text/html");
+				httpResponse.setCharacterEncoding("UTF-8");
 
-					httpResponse.setContentType("text/html");
-					httpResponse.setCharacterEncoding("UTF-8");
+				httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
+				httpResponse
+						.getWriter()
+						.append(AuthManager.getTheManager()
+								.getInitializationError()).flush();
 
-					httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
-					httpResponse
-							.getWriter()
-							.append(AuthManager.getTheManager()
-									.getInitializationError()).flush();
-
-					return;
-				}
+				return;
+			}
 
 		}
 
