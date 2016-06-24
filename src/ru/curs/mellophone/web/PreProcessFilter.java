@@ -30,7 +30,7 @@ public class PreProcessFilter implements Filter {
 			HttpServletRequest httpRequest = (HttpServletRequest) request;
 			HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-			if (!httpRequest.getServletPath().contains("/" + WELCOME_PAGE)) {
+
 				if (AuthManager.getTheManager().getInitializationError() != null) {
 					httpResponse.reset();
 
@@ -51,7 +51,7 @@ public class PreProcessFilter implements Filter {
 
 					return;
 				}
-			}
+
 		}
 
 		chain.doFilter(request, response);
