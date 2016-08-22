@@ -107,9 +107,11 @@ public final class AuthManager {
 	 *            ServletContext
 	 */
 	public void productionModeInitialize(final ServletContext servletContext) {
+		
+		String configPath = null;
 
 		try {
-			String configPath = servletContext
+			configPath = servletContext
 					.getInitParameter(MELLOPHONE_CONFIG_PATH);
 
 			if (configPath == null) {
@@ -131,9 +133,9 @@ public final class AuthManager {
 			}
 
 			if (configPath == null) {
-				configPath = servletContext.getRealPath("../../config.xml");
+				configPath = servletContext.getRealPath("") + "../../config.xml";
 			}
-
+			
 			File configFile = new File(configPath);
 
 			if (!configFile.exists()) {
@@ -160,6 +162,9 @@ public final class AuthManager {
 
 		} catch (Exception e) {
 			initializationError = e.getMessage();
+			if(initializationError == null){
+				initializationError = "файл конфигурации " + configPath + " не существует.";
+			}
 		} finally {
 			if (initializationError != null) {
 				initializationError = "Mellophone не инициализирован по причине: "
