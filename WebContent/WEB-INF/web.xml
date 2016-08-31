@@ -2,11 +2,19 @@
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="2.5">
   <display-name>mellophone</display-name>
   <welcome-file-list>
-    <welcome-file>welcome.html</welcome-file>
+    <welcome-file>welcome.jsp</welcome-file>
   </welcome-file-list>
   <listener>
     <listener-class>ru.curs.mellophone.web.AppEventsListener</listener-class>
   </listener>
+  <filter>
+    <filter-name>PreProcessFilter</filter-name>
+    <filter-class>ru.curs.mellophone.web.PreProcessFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>PreProcessFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
   <servlet>
     <servlet-name>login</servlet-name>
     <jsp-file>/login.jsp</jsp-file>

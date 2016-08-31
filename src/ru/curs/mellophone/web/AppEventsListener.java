@@ -3,6 +3,7 @@ package ru.curs.mellophone.web;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import ru.curs.mellophone.logic.AuthManager;
 import ru.curs.mellophone.logic.SQLLoginProvider;
 
 /**
@@ -12,6 +13,7 @@ public class AppEventsListener implements ServletContextListener {
 
 	@Override
 	public final void contextInitialized(final ServletContextEvent arg0) {
+		AuthManager.getTheManager().productionModeInitialize(arg0.getServletContext());
 	}
 
 	@Override
