@@ -23,14 +23,20 @@ import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+
+
 
 /**
  * Менеджер системы аутентификации.
  */
 public final class AuthManager {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(AuthManager.class);
 
 	/**
 	 * Указывает на то, что нужно опрашивать все провайдеры, игнорируя группу.
@@ -56,7 +62,9 @@ public final class AuthManager {
 	private static final String PROVIDER_ERROR = "При взаимодействии с логин-провайдером произошла следующая ошибка: %s";
 	private static final String LOGIN_TO_PROVIDER_SUCCESSFUL_BUT_USER_NOT_FOUND_IN_BASE = "Логин "
 			+ "прошел успешно, но данный пользователь не найден в базе.";
-
+	private static final String USER_IS_LOCKED_OUT_FOR_TOO_MANY_UNSUCCESSFUL_LOGIN_ATTEMPTS = "User %s is locked out for too many unsuccessful login attempts.";
+	
+	
 	/**
 	 * Период срабатывания таймера закрытия сессий по логауту, минуты.
 	 */
@@ -260,15 +268,20 @@ public final class AuthManager {
 			throws EAuthServerLogic {
 
 		logout(sesid);
-
+		
 		if (lockouts.isLocked(login))
+		{
+			String s = String.format(USER_IS_LOCKED_OUT_FOR_TOO_MANY_UNSUCCESSFUL_LOGIN_ATTEMPTS,
+							login); 
+
+			LOGGER.error(s);
+
 			throw EAuthServerLogic
-					.create(String
-							.format("User %s is locked out for too many unsuccessful login attempts.",
-									login));
+					.create(s);
+		}
 
 		final ArrayList<String> userInfo = new ArrayList<String>();
-		final StringBuffer errlog = new StringBuffer();
+		final StringBuffer errlog = new StringBuffer();		
 		final StringBuffer resumeMessage = new StringBuffer();
 		final Vector<AbstractLoginProvider> result = new Vector<AbstractLoginProvider>(
 				1);
