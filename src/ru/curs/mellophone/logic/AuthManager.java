@@ -755,19 +755,25 @@ public final class AuthManager {
 
 		try {
 			ProviderContextHolder context = as.config.newContextHolder();
-			try {
-				as.config.connect(as.getName(), as.getPwd(), null, context,
-						null);
-				as.config.changePwd(context, userName, newpwd);
-			} finally {
-				context.closeContext();
-			}
-
-			for (String id : authsessions.keySet()) {
-				if (userName.equals(authsessions.get(id).getName())) {
-					authsessions.get(id).setPwd(newpwd);
-					break;
+			
+			
+			if ("LDAPLoginProvider".equalsIgnoreCase(as.config.getClass().getSimpleName())) {
+			
+				try {
+					as.config.connect(as.getName(), as.getPwd(), null, context,
+							null);
+					as.config.changePwd(context, userName, newpwd);
+				} finally {
+					context.closeContext();
 				}
+	
+				for (String id : authsessions.keySet()) {
+					if (userName.equals(authsessions.get(id).getName())) {
+						authsessions.get(id).setPwd(newpwd);
+						break;
+					}
+				}
+			
 			}
 
 			name = as.getName();
