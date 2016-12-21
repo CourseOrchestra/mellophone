@@ -447,7 +447,37 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 	@Override
 	void changePwd(ProviderContextHolder context, String userName, String newpwd)
 			throws EAuthServerLogic {
+		
+		if (getLogger() != null) {
+			getLogger().debug("Url='" + getConnectionUrl() + "'");
+			getLogger().debug("name='" + userName + "'");
+		}
 
+		checkForPossibleSQLInjection(userName, USER + userName + "' не найден");
+
+		String sql = "";
+		try {
+			((SQLLink) context).conn = getConnection();
+
+			sql = String.format("UPDATE \"%s\" SET \"%s\" = ? WHERE \"%s\" = ?",
+					table, fieldPassword, fieldLogin);
+			
+			PreparedStatement stat = ((SQLLink) context).conn
+					.prepareStatement(sql);
+			stat.setString(1, getHash(newpwd));
+			stat.setString(2, userName);
+
+			stat.execute();
+
+		} catch (Exception e) {
+			if (getLogger() != null) {
+				getLogger().error(
+						String.format(ERROR_SQL_SERVER, getConnectionUrl(),
+								e.getMessage(), sql));
+			}
+			throw EAuthServerLogic.create(e);
+		}
+		
 	}
 
 	@Override
