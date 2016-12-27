@@ -107,6 +107,22 @@ public final class AuthManager {
 	public String getInitializationError() {
 		return initializationError;
 	}
+	
+	
+	/**
+	 * Destroy приложения в рабочем режиме.
+	 * 
+	 * @param servletContext
+	 *            ServletContext
+	 */
+	public void productionModeDestroy(final ServletContext servletContext) {
+		
+		if (timerTimeout != null) {
+			timerTimeout.cancel();
+		}
+
+	}
+	
 
 	/**
 	 * Инициализация приложения в рабочем режиме.
