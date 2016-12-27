@@ -6,11 +6,29 @@
 		
 	<common>
 		<threadcount>1</threadcount>
-<!--  		<sessiontimeout>1440</sessiontimeout>		 -->
+<!--  	
+	
+        <sessiontimeout>1440</sessiontimeout>
+-->        
+        
 		<authsessions initialCapacity="10000" loadFactor="80" concurrencyLevel="128"/>
 		<appsessions initialCapacity="10000" loadFactor="80" concurrencyLevel="128"/>
 	</common>
 	
+
+
+<!--
+-->
+
+
+	<xmlfile>
+		<logging>true</logging>
+		<url>
+		D:/workspace8/mellophone/WebContent/WEB-INF/classes/config/samples/users.xml
+		</url>
+	</xmlfile>
+			
+
 	
 	
 <!--
@@ -27,17 +45,6 @@
 	
 	
 	
-<!--
--->
-
-	<xmlfile>
-		<logging>true</logging>
-        <sessiontimeout>0</sessiontimeout>		
-		<url>
-		D:/workspace/mellophone/WebContent/WEB-INF/classes/config/samples/users.xml
-		</url>
-	</xmlfile>
-			
 		
 
 <!--
@@ -250,7 +257,6 @@
 	
 	<xmlfile>
 		<logging>true</logging>
-        <sessiontimeout>0</sessiontimeout>		
 		<url>
 		D:/workspace/AuthServer/WebContent/WEB-INF/classes/config/samples/users.xml
 		</url>

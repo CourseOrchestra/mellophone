@@ -18,6 +18,7 @@ public class AppEventsListener implements ServletContextListener {
 
 	@Override
 	public final void contextDestroyed(final ServletContextEvent arg0) {
+		AuthManager.getTheManager().productionModeDestroy(arg0.getServletContext());
 		SQLLoginProvider.unregisterDrivers();
 	}
 
