@@ -15,11 +15,34 @@
 		<appsessions initialCapacity="10000" loadFactor="80" concurrencyLevel="128"/>
 	</common>
 	
+<!--
+
+-->
+
+
+	<sqlserver>
+ 		<logging>true</logging>
+		<url>jdbc:sqlserver://BORIS2\\SQL8R2_RUS_TEST2:1145;databaseName=showcase</url>
+		<connectionusername>sa</connectionusername>
+		<connectionpassword>F708420Dx</connectionpassword>
+		<table>Пользователи</table>
+		<fieldlogin>Логин</fieldlogin>
+		<fieldpassword>Пароль</fieldpassword>
+		<fieldsalt>Соль пароля</fieldsalt>
+		<proccheckuser>checkUserIP</proccheckuser>
+		<searchreturningattributes
+		  SID="Поле objectSid"		
+		  login="Логин" 
+		  name="Поле name"
+		  email="Поле email"
+		  phone="Поле phone"	
+		  organization = "" 
+		  fax = "Поле fax"	  
+		/>
+	</sqlserver>
 
 
 <!--
--->
-
 
 	<xmlfile>
 		<logging>true</logging>
@@ -27,6 +50,11 @@
 		D:/workspace8/mellophone/WebContent/WEB-INF/classes/config/samples/users.xml
 		</url>
 	</xmlfile>
+
+
+-->
+
+
 			
 
 	
@@ -48,25 +76,6 @@
 		
 
 <!--
-	<sqlserver>
- 		<logging>true</logging>
-		<url>jdbc:sqlserver://BORIS2\\SQL8R2_RUS_TEST2:1145;databaseName=showcase</url>
-		<connectionusername>sa</connectionusername>
-		<connectionpassword>F708420Dx</connectionpassword>
-		<table>Пользователи</table>
-		<fieldlogin>Логин</fieldlogin>
-		<fieldpassword>Пароль</fieldpassword>
-		<proccheckuser>checkUserIP</proccheckuser>
-		<searchreturningattributes
-		  SID="Поле objectSid"		
-		  login="Логин" 
-		  name="Поле name"
-		  email="Поле email"
-		  phone="Поле phone"	
-		  organization = "" 
-		  fax = "Поле fax"	  
-		/>
-	</sqlserver>
 -->
 	
 	

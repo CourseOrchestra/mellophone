@@ -52,6 +52,7 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 	private String table;
 	private String fieldLogin;
 	private String fieldPassword;
+	private String fieldSalt = null;
 	private String procCheckUser = null;
 
 	private final HashMap<String, String> searchReturningAttributes = new HashMap<String, String>();
@@ -82,6 +83,10 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 
 	void setFieldPassword(String fieldPassword) {
 		this.fieldPassword = fieldPassword;
+	}
+	
+	void setFieldSalt(String fieldSalt) {
+		this.fieldSalt = fieldSalt;
 	}
 
 	void setProcCheckUser(String procCheckUser) {
@@ -219,9 +224,16 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 		try {
 			((SQLLink) context).conn = getConnection();
 
-			sql = String.format(
-					"SELECT \"%s\", %s FROM \"%s\" WHERE \"%s\" = ?",
-					fieldPassword, getSelectFields(), table, fieldLogin);
+			if (fieldSalt == null) {
+				sql = String.format(
+						"SELECT \"%s\", %s FROM \"%s\" WHERE \"%s\" = ?",
+						fieldPassword, getSelectFields(), table, fieldLogin);
+			} else {
+				sql = String.format(
+						"SELECT \"%s\", \"%s\", %s FROM \"%s\" WHERE \"%s\" = ?",
+						fieldPassword, fieldSalt, getSelectFields(), table, fieldLogin);
+			}
+			
 
 			PreparedStatement stat = ((SQLLink) context).conn
 					.prepareStatement(sql);
@@ -233,9 +245,18 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 				ResultSet rs = stat.getResultSet();
 				if (rs.next()) {
 					String pwd = rs.getString(fieldPassword);
+					
+					String salt = null;
+					if(fieldSalt != null){
+						salt = rs.getString(fieldSalt);
+					}
+					if(salt == null){
+						salt = "";
+					}
+					
 					if ((pwd != null)
 							&& (pwd.equals(password) || pwd
-									.equals(getHash(password)))) {
+									.equals(getHash(password+salt)))) {
 
 						if ((procCheckUser != null) && (ip != null)) {
 							CallableStatement cs = ((SQLLink) context).conn
@@ -456,14 +477,40 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 		checkForPossibleSQLInjection(userName, USER + userName + "' не найден");
 
 		String sql = "";
+		String salt = null;
 		try {
 			((SQLLink) context).conn = getConnection();
+			
+			
+			if(	fieldSalt != null){
+				sql = String.format(
+						"SELECT \"%s\" FROM \"%s\" WHERE \"%s\" = ?",
+						fieldSalt, table, fieldLogin);
+
+				PreparedStatement stat = ((SQLLink) context).conn
+						.prepareStatement(sql);
+
+				stat.setString(1, userName);
+
+				boolean hasResult = stat.execute();
+				if (hasResult) {
+					ResultSet rs = stat.getResultSet();
+					if (rs.next()) {
+						salt = rs.getString(fieldSalt);
+					}
+				}
+				
+			}
+					
 
 			sql = String.format("UPDATE \"%s\" SET \"%s\" = ? WHERE \"%s\" = ?",
 					table, fieldPassword, fieldLogin);
 			
 			PreparedStatement stat = ((SQLLink) context).conn
 					.prepareStatement(sql);
+			if(salt != null){
+				newpwd = newpwd + salt;
+			}
 			stat.setString(1, getHash(newpwd));
 			stat.setString(2, userName);
 
