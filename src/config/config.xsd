@@ -197,6 +197,14 @@
                                     </xs:restriction>
                                 </xs:simpleType>
                             </xs:element>
+                            <xs:element minOccurs="0" name="hashalgorithm">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                        <xs:enumeration value="SHA-1"/>
+                                        <xs:enumeration value="SHA-256"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
                             <xs:element minOccurs="0" name="proccheckuser">
                                 <xs:simpleType>
                                     <xs:restriction base="xs:string">

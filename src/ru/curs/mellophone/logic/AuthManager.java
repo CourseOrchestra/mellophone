@@ -1230,6 +1230,14 @@ public final class AuthManager {
 								.setFieldSalt(value);
 				}
 			});
+			actions.put("hashalgorithm", new ParserAction() {
+				@Override
+				void characters(String value) {
+					if (loginProviders.size() > 0)
+						((SQLLoginProvider) loginProviders.getLast())
+								.setHashAlgorithm(value);
+				}
+			});
 			actions.put("proccheckuser", new ParserAction() {
 				@Override
 				void characters(String value) {

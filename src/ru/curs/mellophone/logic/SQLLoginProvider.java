@@ -30,18 +30,7 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 	private static final String USER_LOGIN = "Логин пользователя '";
 	private static final String ERROR_SQL_SERVER = "Ошибка при работе с базой '%s': %s. Запрос: '%s'";
 
-	private static final MessageDigest MD;
-	static {
-		MessageDigest md;
-		try {
-			md = MessageDigest.getInstance("SHA-1");
-		} catch (NoSuchAlgorithmException e) {
-			// Если такое случилось --- у нас Java неправильно стоит...
-			e.printStackTrace();
-			md = null;
-		}
-		MD = md;
-	}
+	private MessageDigest MD = null;
 
 	// private final Queue<Connection> pool = new LinkedList<Connection>();
 
@@ -53,6 +42,7 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 	private String fieldLogin;
 	private String fieldPassword;
 	private String fieldSalt = null;
+	private String hashAlgorithm = "SHA-1";
 	private String procCheckUser = null;
 
 	private final HashMap<String, String> searchReturningAttributes = new HashMap<String, String>();
@@ -87,6 +77,10 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 	
 	void setFieldSalt(String fieldSalt) {
 		this.fieldSalt = fieldSalt;
+	}
+	
+	void setHashAlgorithm(String hashAlgorithm) {
+		this.hashAlgorithm = hashAlgorithm;
 	}
 
 	void setProcCheckUser(String procCheckUser) {
@@ -539,12 +533,22 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 	 * 
 	 * @throws UnsupportedEncodingException
 	 */
-	private static String getHash(String input)
-			throws UnsupportedEncodingException {
+	private String getHash(String input)	throws UnsupportedEncodingException {
+		
+		if(MD == null){
+			try {
+				MD = MessageDigest.getInstance(hashAlgorithm);
+			} catch (NoSuchAlgorithmException e) {
+				// Если такое случилось --- у нас Java неправильно стоит...
+				e.printStackTrace();
+			}
+		}
+		
 		synchronized (MD) {
 			MD.reset();
 			MD.update(input.getBytes("UTF-8"));
 			return asHex(MD.digest());
+			
 		}
 	}
 
