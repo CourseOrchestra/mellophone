@@ -19,7 +19,6 @@
 
 -->
 
-
 	<sqlserver>
  		<logging>true</logging>
 		<url>jdbc:sqlserver://BORIS2\\SQL8R2_RUS_TEST2:1145;databaseName=showcase</url>
@@ -29,6 +28,7 @@
 		<fieldlogin>Логин</fieldlogin>
 		<fieldpassword>Пароль</fieldpassword>
 		<fieldsalt>Соль пароля</fieldsalt>
+		<hashalgorithm>SHA-256</hashalgorithm>
 		<proccheckuser>checkUserIP</proccheckuser>
 		<searchreturningattributes
 		  SID="Поле objectSid"		
@@ -42,6 +42,7 @@
 	</sqlserver>
 
 
+
 <!--
 
 	<xmlfile>
@@ -50,9 +51,9 @@
 		D:/workspace8/mellophone/WebContent/WEB-INF/classes/config/samples/users.xml
 		</url>
 	</xmlfile>
-
-
 -->
+
+
 
 
 			
