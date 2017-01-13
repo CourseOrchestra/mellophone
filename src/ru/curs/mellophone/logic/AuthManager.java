@@ -255,6 +255,149 @@ public final class AuthManager {
 		return theMANAGER;
 	}
 
+
+	
+	public void checkCredentials(final String groupProviders, final String login, 
+			final String password, final String ip, final PrintWriter pw)
+			throws EAuthServerLogic {
+		
+		if (lockouts.isLocked(login))
+		{
+			String s = String.format(USER_IS_LOCKED_OUT_FOR_TOO_MANY_UNSUCCESSFUL_LOGIN_ATTEMPTS,
+							login); 
+
+			LOGGER.error(s);
+
+			throw EAuthServerLogic
+					.create(s);
+		}
+
+		final StringBuffer errlog = new StringBuffer();		
+		final StringBuffer resumeMessage = new StringBuffer();
+		final Vector<AbstractLoginProvider> result = new Vector<AbstractLoginProvider>(
+				1);
+		final Vector<AbstractLoginProvider> taskPool = new Vector<AbstractLoginProvider>(
+				loginProviders.size());
+		for (AbstractLoginProvider p : loginProviders)
+			if ((GROUP_PROVIDERS_ALL.equalsIgnoreCase(groupProviders))
+					|| (groupProviders.equals(p.getGroupProviders())))
+				taskPool.add(p);
+		
+		
+		/**
+		 * Менеджер потоков опроса логин-провайдеров.
+		 */
+		class ThreadsHandler {
+			private int c = threadCount;
+
+			synchronized void markThreadFinish() {
+				c--;
+				notify();
+			}
+
+			synchronized boolean isFinished() {
+				return c <= 0;
+			}
+		}
+		final ThreadsHandler h = new ThreadsHandler();
+
+		/**
+		 * Поток опроса логин-провайдеров.
+		 */
+		class LoginThread extends Thread {
+			private AbstractLoginProvider getNext() {
+				synchronized (taskPool) {
+					return taskPool.size() == 0 ? null : taskPool
+							.remove(taskPool.size() - 1);
+				}
+
+			}
+
+			@Override
+			public void run() {
+				AbstractLoginProvider curProvider = getNext();
+				while (curProvider != null) {
+					try {
+						ProviderContextHolder ch = curProvider
+								.newContextHolder();
+						try {
+
+							curProvider.connect(login, password, ip, ch, pw);
+							
+							if ((!"SQLLoginProvider"
+									.equalsIgnoreCase(curProvider.getClass()
+											.getSimpleName()))
+									&& (!"IASBPLoginProvider"
+											.equalsIgnoreCase(curProvider
+													.getClass().getSimpleName()))) {
+								curProvider.getUserInfoByName(ch, login, pw);
+								if ("".equals(pw.toString().trim())) {
+									throw EAuthServerLogic
+											.create(LOGIN_TO_PROVIDER_SUCCESSFUL_BUT_USER_NOT_FOUND_IN_BASE);
+								}
+							}
+							
+							
+						} finally {
+							ch.closeContext();
+						}
+						// Если коннект прошёл без ошибок, то значит, мы нашли
+						// коннектор и выходим из цикла.
+						result.add(curProvider);
+						break;
+					} catch (EAuthServerLogic e) {
+						errlog.append(curProvider.getConnectionUrl() + ": "
+								+ e.getMessage() + "\n");
+
+						if (e.getBadLoginType() == BadLoginType.BAD_PROC_CHECK_USER) {
+							resumeMessage.delete(0, resumeMessage.length());
+							resumeMessage.append(e.getMessage());
+						} else {
+							if (resumeMessage.length() == 0) {
+								resumeMessage
+										.append("Неправильная пара логин/пароль");
+							}
+						}
+
+					}
+					curProvider = getNext();
+				}
+				h.markThreadFinish();
+			}
+		}
+
+		Thread[] procs = new LoginThread[threadCount];
+		for (int i = 0; i < procs.length; i++) {
+			procs[i] = new LoginThread();
+			procs[i].start();
+		}
+		synchronized (h) {
+			while (result.size() == 0 && !h.isFinished()) {
+				try {
+					h.wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		if (result.size() == 0) {
+			if (errlog.toString().trim().isEmpty()) {
+				errlog.append("Неправильная пара логин/пароль");
+			}
+			lockouts.loginFail(login);
+			throw EAuthServerLogic
+					.create(String.format(PROVIDER_ERROR, errlog.toString()
+							+ "\nРезюме: " + resumeMessage.toString()));
+		}
+
+
+		lockouts.success(login);
+		
+	}
+
+		
+	
 	/**
 	 * 1.Разаутентифицирует сессию с идентификатором приложения sesid и все
 	 * другие сессии приложений, соотносящиеся с той же сессией аутентификации.
