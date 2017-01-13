@@ -25,6 +25,16 @@
   </servlet-mapping>
   <servlet>
     <description></description>
+    <display-name>ProcessCheckCredentials</display-name>
+    <servlet-name>ProcessCheckCredentials</servlet-name>
+    <servlet-class>ru.curs.mellophone.web.ProcessCheckCredentials</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ProcessCheckCredentials</servlet-name>
+    <url-pattern>/checkcredentials</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
     <display-name>ProcessCheckName</display-name>
     <servlet-name>ProcessCheckName</servlet-name>
     <servlet-class>ru.curs.mellophone.web.ProcessCheckName</servlet-class>
