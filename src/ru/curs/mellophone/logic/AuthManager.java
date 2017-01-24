@@ -1365,20 +1365,20 @@ public final class AuthManager {
 								.setFieldPassword(value);
 				}
 			});
-			actions.put("fieldsalt", new ParserAction() {
-				@Override
-				void characters(String value) {
-					if (loginProviders.size() > 0)
-						((SQLLoginProvider) loginProviders.getLast())
-								.setFieldSalt(value);
-				}
-			});
 			actions.put("hashalgorithm", new ParserAction() {
 				@Override
 				void characters(String value) {
 					if (loginProviders.size() > 0)
 						((SQLLoginProvider) loginProviders.getLast())
 								.setHashAlgorithm(value);
+				}
+			});
+			actions.put("localsecuritysalt", new ParserAction() {
+				@Override
+				void characters(String value) {
+					if (loginProviders.size() > 0)
+						((SQLLoginProvider) loginProviders.getLast())
+								.setLocalSecuritySalt(value);
 				}
 			});
 			actions.put("proccheckuser", new ParserAction() {
