@@ -191,17 +191,29 @@
                                     </xs:restriction>
                                 </xs:simpleType>
                             </xs:element>
-                            <xs:element minOccurs="0" name="fieldsalt">
-                                <xs:simpleType>
-                                    <xs:restriction base="xs:string">
-                                    </xs:restriction>
-                                </xs:simpleType>
-                            </xs:element>
                             <xs:element minOccurs="0" name="hashalgorithm">
                                 <xs:simpleType>
                                     <xs:restriction base="xs:string">
+                                        <xs:enumeration value="MD2"/>
+                                        <xs:enumeration value="MD5"/>
                                         <xs:enumeration value="SHA-1"/>
+                                        <xs:enumeration value="SHA-224"/>
                                         <xs:enumeration value="SHA-256"/>
+                                        <xs:enumeration value="SHA-384"/>
+                                        <xs:enumeration value="SHA-512"/>
+                                        <xs:enumeration value="md2"/>
+                                        <xs:enumeration value="md5"/>
+                                        <xs:enumeration value="sha-1"/>
+                                        <xs:enumeration value="sha-224"/>
+                                        <xs:enumeration value="sha-256"/>
+                                        <xs:enumeration value="sha-384"/>
+                                        <xs:enumeration value="sha-512"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element minOccurs="0" name="localsecuritysalt">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
                                     </xs:restriction>
                                 </xs:simpleType>
                             </xs:element>

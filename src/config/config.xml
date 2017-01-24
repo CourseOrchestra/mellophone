@@ -15,6 +15,8 @@
 		<appsessions initialCapacity="10000" loadFactor="80" concurrencyLevel="128"/>
 	</common>
 	
+	
+	
 <!--
 
 -->
@@ -27,8 +29,8 @@
 		<table>Пользователи</table>
 		<fieldlogin>Логин</fieldlogin>
 		<fieldpassword>Пароль</fieldpassword>
-		<fieldsalt>Соль пароля</fieldsalt>
 		<hashalgorithm>SHA-256</hashalgorithm>
+		<localsecuritysalt>0763bdd890421f02bba7bfe8b456c69f</localsecuritysalt>
 		<proccheckuser>checkUserIP</proccheckuser>
 		<searchreturningattributes
 		  SID="Поле objectSid"		
@@ -44,6 +46,7 @@
 
 
 <!--
+
 
 	<xmlfile>
 		<logging>true</logging>
