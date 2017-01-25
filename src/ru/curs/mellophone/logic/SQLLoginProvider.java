@@ -14,12 +14,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.slf4j.LoggerFactory;
+
 
 /**
  * Конфигурация подключения к SQL-серверу.
@@ -32,9 +34,8 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 	private static final String ERROR_SQL_SERVER = "Ошибка при работе с базой '%s': %s. Запрос: '%s'";
 	
 	private static final String PASSWORD_DIVIDER   = "#";
- 
-
-	private MessageDigest MD = null;
+	
+	private static ConcurrentHashMap<String, MessageDigest> mdPool = new ConcurrentHashMap<String, MessageDigest>(4);
 
 	// private final Queue<Connection> pool = new LinkedList<Connection>();
 
@@ -530,9 +531,13 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 	 */
 	private String getHash(String input, String alg)	throws UnsupportedEncodingException, EAuthServerLogic {
 		
-		if(MD == null){
+		MessageDigest md = mdPool.get(alg);
+		if(md == null){
 			try {
-				MD = MessageDigest.getInstance(alg);
+				md = MessageDigest.getInstance(alg);
+				if(mdPool.get(alg) == null){
+					mdPool.put(alg, md);
+				}
 			} catch (NoSuchAlgorithmException e) {
 				if (getLogger() != null) {
 					getLogger().error(e.getMessage());
@@ -541,12 +546,12 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 			}
 		}
 		
-		synchronized (MD) {
-			MD.reset();
-			MD.update(input.getBytes("UTF-8"));
-			return asHex(MD.digest());
-			
+		synchronized (md) {
+			md.reset();
+			md.update(input.getBytes("UTF-8"));
+			return asHex(md.digest());
 		}
+		
 	}
 	
 	private String getHashAlgorithm1(String input) {
