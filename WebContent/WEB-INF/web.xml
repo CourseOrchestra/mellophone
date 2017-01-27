@@ -35,6 +35,16 @@
   </servlet-mapping>
   <servlet>
     <description></description>
+    <display-name>ProcessGetProviderList</display-name>
+    <servlet-name>ProcessGetProviderList</servlet-name>
+    <servlet-class>ru.curs.mellophone.web.ProcessGetProviderList</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ProcessGetProviderList</servlet-name>
+    <url-pattern>/getproviderlist</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
     <display-name>ProcessCheckName</display-name>
     <servlet-name>ProcessCheckName</servlet-name>
     <servlet-class>ru.curs.mellophone.web.ProcessCheckName</servlet-class>
