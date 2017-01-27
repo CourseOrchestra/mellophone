@@ -18,8 +18,8 @@
 	
 	
 <!--
-
 -->
+
 
 	<sqlserver>
  		<logging>true</logging>
@@ -46,7 +46,7 @@
 
 
 <!--
-
+-->
 
 	<xmlfile>
 		<logging>true</logging>
@@ -54,7 +54,7 @@
 		D:/workspace8/mellophone/WebContent/WEB-INF/classes/config/samples/users.xml
 		</url>
 	</xmlfile>
--->
+
 
 
 

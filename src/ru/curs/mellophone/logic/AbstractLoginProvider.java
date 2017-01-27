@@ -27,6 +27,8 @@ abstract class AbstractLoginProvider {
 	private Logger logger = null;
 
 	private String url;
+	
+	private String type;
 
 	private String groupProviders = "";
 
@@ -162,6 +164,14 @@ abstract class AbstractLoginProvider {
 	 */
 	public String getGroupProviders() {
 		return groupProviders;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String aType) {
+		type = aType;
 	}
 
 }
