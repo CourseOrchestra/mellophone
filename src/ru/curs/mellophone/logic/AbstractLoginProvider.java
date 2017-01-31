@@ -1,6 +1,7 @@
 package ru.curs.mellophone.logic;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -31,6 +32,10 @@ abstract class AbstractLoginProvider {
 	private String type;
 
 	private String groupProviders = "";
+	
+	private String id = "";
+	
+	private ArrayList<String> trustedUsers = null;
 
 	static void writeXMLAttr(XMLStreamWriter xw, String attrName, String value)
 			throws XMLStreamException {
@@ -127,7 +132,7 @@ abstract class AbstractLoginProvider {
 	 * @throws EAuthServerLogic
 	 *             в случае, если операция не удалась.
 	 */
-	abstract void importUsers(ProviderContextHolder context, PrintWriter pw)
+	abstract void importUsers(ProviderContextHolder context, PrintWriter pw, boolean needStartDocument)
 			throws EAuthServerLogic;
 
 	/**
@@ -172,6 +177,22 @@ abstract class AbstractLoginProvider {
 
 	public void setType(String aType) {
 		type = aType;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String aId) {
+		id = aId;
+	}
+
+	public ArrayList<String> getTrustedUsers() {
+		return trustedUsers;
+	}
+
+	public void setTrustedUsers(ArrayList<String> aTrustedUsers) {
+		trustedUsers = aTrustedUsers;
 	}
 
 }

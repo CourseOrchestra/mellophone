@@ -23,6 +23,7 @@
                     </xs:annotation>
                     <xs:complexType>
                         <xs:sequence>
+                            <xs:element minOccurs="0" name="id" type="xs:string"/>                        	    
                             <xs:element minOccurs="0" name="group_providers" type="xs:string"/>
                             <xs:element minOccurs="0" name="domain_name" type="xs:string"/>
                             <xs:element minOccurs="0" name="logging" type="xs:boolean"/>
@@ -50,6 +51,12 @@
                                         <xs:enumeration value="Simple"/>
                                         <xs:enumeration value="DIGEST_MD5"/>
                                         <xs:enumeration value="GSSAPI"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element minOccurs="0" maxOccurs="unbounded"  name="trusteduser">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
                                     </xs:restriction>
                                 </xs:simpleType>
                             </xs:element>
@@ -84,9 +91,16 @@
                     </xs:annotation>
                     <xs:complexType>
                         <xs:sequence>
+                            <xs:element minOccurs="0" name="id" type="xs:string"/>                        
                             <xs:element minOccurs="0" name="logging" type="xs:boolean"/>
                             <xs:element minOccurs="0" name="sessiontimeout" type="xs:integer"/>                               
                             <xs:element name="url">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element minOccurs="0" maxOccurs="unbounded"  name="trusteduser">
                                 <xs:simpleType>
                                     <xs:restriction base="xs:string">
                                     </xs:restriction>
@@ -152,7 +166,8 @@
                         <xs:documentation>Коннектор к SQL-серверу.</xs:documentation>
                     </xs:annotation>
                     <xs:complexType>
-                        <xs:sequence>
+                         <xs:sequence>
+                            <xs:element minOccurs="0" name="id" type="xs:string"/>                         
                             <xs:element minOccurs="0" name="logging" type="xs:boolean"/>
                             <xs:element minOccurs="0" name="sessiontimeout" type="xs:integer"/>                            
                             <xs:element minOccurs="1" name="url">
@@ -217,6 +232,12 @@
                                     </xs:restriction>
                                 </xs:simpleType>
                             </xs:element>
+                            <xs:element minOccurs="0" maxOccurs="unbounded"  name="trusteduser">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
                             <xs:element minOccurs="0" name="proccheckuser">
                                 <xs:simpleType>
                                     <xs:restriction base="xs:string">
@@ -225,7 +246,7 @@
                             </xs:element>
                             <xs:element minOccurs="1" name="searchreturningattributes">
                             </xs:element>
-                        </xs:sequence>
+                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
             </xs:choice>

@@ -316,7 +316,7 @@ final class HTTPLoginProvider extends AbstractLoginProvider {
 	}
 
 	@Override
-	void importUsers(ProviderContextHolder context, PrintWriter pw)
+	void importUsers(ProviderContextHolder context, PrintWriter pw, boolean needStartDocument)
 			throws EAuthServerLogic {
 		// TODO Auto-generated method stub
 	}

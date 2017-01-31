@@ -206,7 +206,7 @@ final class XMLLoginProvider extends AbstractLoginProvider {
 	}
 
 	@Override
-	void importUsers(ProviderContextHolder ldapLink, final PrintWriter pw)
+	void importUsers(ProviderContextHolder ldapLink, final PrintWriter pw, boolean needStartDocument)
 			throws EAuthServerLogic {
 
 		if (getLogger() != null) {
@@ -237,8 +237,11 @@ final class XMLLoginProvider extends AbstractLoginProvider {
 		};
 
 		try {
-			xw.writeStartDocument("utf-8", "1.0");
+			if(needStartDocument){
+				xw.writeStartDocument("utf-8", "1.0");					
+			}
 			xw.writeStartElement("users");
+			writeXMLAttr(xw, "pid", getId());
 			SaxonTransformerFactory
 					.newInstance()
 					.newTransformer()

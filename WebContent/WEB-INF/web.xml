@@ -45,6 +45,16 @@
   </servlet-mapping>
   <servlet>
     <description></description>
+    <display-name>ProcessGetUserList</display-name>
+    <servlet-name>ProcessGetUserList</servlet-name>
+    <servlet-class>ru.curs.mellophone.web.ProcessGetUserList</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ProcessGetUserList</servlet-name>
+    <url-pattern>/getuserlist</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
     <display-name>ProcessCheckName</display-name>
     <servlet-name>ProcessCheckName</servlet-name>
     <servlet-class>ru.curs.mellophone.web.ProcessCheckName</servlet-class>
@@ -134,16 +144,18 @@
     <servlet-name>ProcessAuthenticationGif</servlet-name>
     <url-pattern>/authentication.gif</url-pattern>
   </servlet-mapping>
-  <servlet>
-    <description></description>
-    <display-name>ProcessImportUsers</display-name>
-    <servlet-name>ProcessImportUsers</servlet-name>
-    <servlet-class>ru.curs.mellophone.web.ProcessImportUsers</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>ProcessImportUsers</servlet-name>
-    <url-pattern>/importusers</url-pattern>
-  </servlet-mapping>
+  
+<!--   <servlet> -->
+<!--     <description></description> -->
+<!--     <display-name>ProcessImportUsers</display-name> -->
+<!--     <servlet-name>ProcessImportUsers</servlet-name> -->
+<!--     <servlet-class>ru.curs.mellophone.web.ProcessImportUsers</servlet-class> -->
+<!--   </servlet> -->
+<!--   <servlet-mapping> -->
+<!--     <servlet-name>ProcessImportUsers</servlet-name> -->
+<!--     <url-pattern>/importusers</url-pattern> -->
+<!--   </servlet-mapping> -->
+  
   <servlet>
     <description></description>
     <display-name>ProcessImportGroupsProviders</display-name>
