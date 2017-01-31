@@ -421,7 +421,7 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 	}
 
 	@Override
-	void importUsers(ProviderContextHolder context, PrintWriter pw)
+	void importUsers(ProviderContextHolder context, PrintWriter pw, boolean needStartDocument)
 			throws EAuthServerLogic {
 
 		if (getLogger() != null) {
@@ -443,8 +443,11 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 						new String[0]);
 				XMLStreamWriter xw = XMLOutputFactory.newInstance()
 						.createXMLStreamWriter(pw);
-				xw.writeStartDocument("utf-8", "1.0");
+				if(needStartDocument){
+					xw.writeStartDocument("utf-8", "1.0");					
+				}
 				xw.writeStartElement("users");
+				writeXMLAttr(xw, "pid", getId());
 				while (rs.next()) {
 					xw.writeEmptyElement("user");
 					for (String attr : attrs) {

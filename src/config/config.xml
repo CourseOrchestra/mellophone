@@ -22,6 +22,7 @@
 
 
 	<sqlserver>
+	    <id>test</id>
  		<logging>true</logging>
 		<url>jdbc:sqlserver://BORIS2\\SQL8R2_RUS_TEST2:1145;databaseName=showcase</url>
 		<connectionusername>sa</connectionusername>
@@ -31,6 +32,10 @@
 		<fieldpassword>Пароль</fieldpassword>
 		<hashalgorithm>SHA-256</hashalgorithm>
 		<localsecuritysalt>0763bdd890421f02bba7bfe8b456c69f</localsecuritysalt>
+		
+		<trusteduser>Иванов1</trusteduser>
+		<trusteduser>Петров1</trusteduser>
+		
 		<proccheckuser>checkUserIP</proccheckuser>
 		<searchreturningattributes
 		  SID="Поле objectSid"		
@@ -49,10 +54,12 @@
 -->
 
 	<xmlfile>
+	    <id>test2</id>	
 		<logging>true</logging>
 		<url>
 		D:/workspace8/mellophone/WebContent/WEB-INF/classes/config/samples/users.xml
 		</url>
+		<trusteduser>Иванов1</trusteduser>
 	</xmlfile>
 
 

@@ -474,6 +474,7 @@ public final class AuthManager {
 										if ((GROUP_PROVIDERS_ALL.equalsIgnoreCase(groupProviders))
 												|| (groupProviders.equals(alp.getGroupProviders()))){
 											xw.writeEmptyElement("provider");
+											xw.writeAttribute("id", alp.getId());
 											xw.writeAttribute("type", alp.getType());
 											xw.writeAttribute("url", alp.getConnectionUrl());
 											xw.writeAttribute("group_providers", alp.getGroupProviders());
@@ -543,6 +544,114 @@ public final class AuthManager {
 		lockouts.success(login);
 		
 	}
+	
+	
+	public void getUserList(final String providerId, final String groupProviders, final String login, 
+			final String password, final String ip, final PrintWriter pw)
+			throws EAuthServerLogic {
+		
+		if (lockouts.isLocked(login))
+		{
+			String s = String.format(USER_IS_LOCKED_OUT_FOR_TOO_MANY_UNSUCCESSFUL_LOGIN_ATTEMPTS,
+							login); 
+
+			LOGGER.error(s);
+
+			throw EAuthServerLogic.create(s);
+		}
+		
+		
+		if (providerId != null) {
+			
+			AbstractLoginProvider curProvider = null;
+			
+			for (AbstractLoginProvider p : loginProviders){
+				if(providerId.equals(p.getId())){
+					curProvider = p;
+					break;
+				}
+			}
+			
+			if(curProvider == null){
+				lockouts.loginFail(login);
+				String s = String.format("/getuserlist (pid = %s). Провайдер не найден.", providerId);
+				LOGGER.error(s);
+				throw EAuthServerLogic.create(s);
+			}
+			
+			if ((curProvider.getTrustedUsers() == null) || (curProvider.getTrustedUsers().indexOf(login) == -1)) {
+				lockouts.loginFail(login);
+				String s = String.format("/getuserlist (pid = %s). Провайдер не содержит доверенного пользователя %s.", providerId, login);
+				LOGGER.error(s);
+				throw EAuthServerLogic.create(s);
+			} 
+			
+			
+			try {
+				ProviderContextHolder ch = curProvider.newContextHolder();
+				try {
+					curProvider.connect(login, password, ip, ch, null);
+					curProvider.importUsers(ch, pw, true);
+				} finally {
+					ch.closeContext();
+				}
+			} catch (EAuthServerLogic e) {
+				lockouts.loginFail(login);
+				throw EAuthServerLogic.create(String.format(PROVIDER_ERROR, e.getMessage()));
+			}
+			
+			lockouts.success(login);
+			
+			
+		} else {
+			
+			boolean res = false;
+			
+			final StringBuffer errlog = new StringBuffer();
+			errlog.append("/getuserlist.\n");
+			
+			for (AbstractLoginProvider curProvider : loginProviders){
+				if ((GROUP_PROVIDERS_ALL.equalsIgnoreCase(groupProviders))
+						|| (groupProviders.equals(curProvider.getGroupProviders()))){
+
+					if ((curProvider.getTrustedUsers() == null) || (curProvider.getTrustedUsers().indexOf(login) == -1)) {
+						lockouts.loginFail(login);
+						String s = String.format("Провайдер не содержит доверенного пользователя %s.", login);
+						errlog.append(curProvider.getConnectionUrl() + ": "
+								+ s + "\n");
+						continue;
+					}
+					
+					try {
+						ProviderContextHolder ch = curProvider.newContextHolder();
+						try {
+							curProvider.connect(login, password, ip, ch, null);
+							curProvider.importUsers(ch, pw, !res);
+							res = true;
+						} finally {
+							ch.closeContext();
+						}
+					} catch (EAuthServerLogic e) {
+						String s = String.format(PROVIDER_ERROR, e.getMessage());
+						errlog.append(curProvider.getConnectionUrl() + ": "
+								+ s + "\n");
+					}
+					
+				}
+			}
+			
+			if (!res) {
+				lockouts.loginFail(login);
+				throw EAuthServerLogic
+						.create(errlog.toString());
+			}
+			
+			lockouts.success(login);
+
+		}
+		
+	}
+	
 	
 	
 	
@@ -1157,7 +1266,7 @@ public final class AuthManager {
 			try {
 				as.config.connect(as.getName(), as.getPwd(), null, context,
 						null);
-				as.config.importUsers(context, pw);
+				as.config.importUsers(context, pw, true);
 			} finally {
 				context.closeContext();
 			}
@@ -1452,7 +1561,14 @@ public final class AuthManager {
 					loginProviders.getLast().setType("ldapserver");
 				}
 			});
-
+			
+			actions.put("id", new ParserAction() {
+				@Override
+				void characters(String value) {
+					if (loginProviders.size() > 0)
+						loginProviders.getLast().setId(value);
+				}
+			});
 			actions.put("logging", new ParserAction() {
 				@Override
 				void characters(String value) {
@@ -1461,7 +1577,6 @@ public final class AuthManager {
 								.parseBoolean(value));
 				}
 			});
-
 			actions.put("servertype", new ParserAction() {
 				@Override
 				void characters(String value) {
@@ -1533,6 +1648,17 @@ public final class AuthManager {
 					if (loginProviders.size() > 0)
 						((SQLLoginProvider) loginProviders.getLast())
 								.setLocalSecuritySalt(value);
+				}
+			});
+			actions.put("trusteduser", new ParserAction() {
+				@Override
+				void characters(String value) {
+					if (loginProviders.size() > 0) {
+						if(loginProviders.getLast().getTrustedUsers() == null){
+							loginProviders.getLast().setTrustedUsers(new ArrayList<String>());
+						}
+						loginProviders.getLast().getTrustedUsers().add(value);
+					}
 				}
 			});
 			actions.put("proccheckuser", new ParserAction() {

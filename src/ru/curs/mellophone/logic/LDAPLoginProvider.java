@@ -635,7 +635,7 @@ final class LDAPLoginProvider extends AbstractLoginProvider {
 	}
 
 	@Override
-	void importUsers(ProviderContextHolder ldapLink, PrintWriter pw)
+	void importUsers(ProviderContextHolder ldapLink, PrintWriter pw, boolean needStartDocument)
 			throws EAuthServerLogic {
 
 		NamingEnumeration<SearchResult> searchResults;
@@ -656,8 +656,11 @@ final class LDAPLoginProvider extends AbstractLoginProvider {
 		try {
 			XMLStreamWriter xw = XMLOutputFactory.newInstance()
 					.createXMLStreamWriter(pw);
-			xw.writeStartDocument("utf-8", "1.0");
+			if(needStartDocument){
+				xw.writeStartDocument("utf-8", "1.0");					
+			}
 			xw.writeStartElement("root");
+			writeXMLAttr(xw, "pid", getId());
 
 			for (String sSearchBase : searchBases) {
 
