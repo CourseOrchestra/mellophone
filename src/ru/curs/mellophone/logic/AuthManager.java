@@ -100,6 +100,8 @@ public final class AuthManager {
 
 	/** Залоченные (за повторное использование паролей) пользователи. */
 	private final LockoutManager lockouts = new LockoutManager();
+	
+	private static ESIALoginProvider esiaLoginProvider = null; 
 
 	private String initializationError = null;
 
@@ -1448,6 +1450,50 @@ public final class AuthManager {
 				+ "\"});");
 
 	}
+	
+	
+	/**
+	 * Логинит ESIA пользователя  
+	 * 
+	 * @param sesid
+	 *            Идентификатор сессии.
+	 *            
+	 * @param login
+	 *            Логин пользователя
+            
+	 * @param userInfo
+	 *            Информация о пользователе
+	 *             
+	 * @param pw
+	 *            PrintWriter, в который выводится необходимая информация 
+	 *            
+	 * @throws EAuthServerLogic
+	 *             Если возникает ошибка
+	 * 
+	 */
+	public void loginESIAUser(String sesid, String login, String userInfo, PrintWriter pw)
+			throws EAuthServerLogic {
+		
+		if(esiaLoginProvider == null){
+			esiaLoginProvider = new ESIALoginProvider();
+			esiaLoginProvider.setType("esia");
+			esiaLoginProvider.setConnectionUrl("esia");
+			esiaLoginProvider.setupLogger(false);
+		}
+		 
+		SecureRandom r = new SecureRandom();
+		String authid = String.format("%016x", r.nextLong())
+				+ String.format("%016x", r.nextLong());
+
+			
+		authsessions.put(authid, new AuthSession(login, null, esiaLoginProvider, authid,
+				userInfo, null, null));
+			
+		appsessions.put(sesid, authid);
+		
+	}
+	
+	
 
 	/**
 	 * Аутентифицированная сессия. Содержит закэшированный (в оперативной

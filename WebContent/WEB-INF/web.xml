@@ -196,4 +196,14 @@
     <servlet-name>ProcessGetDjangoAuthId</servlet-name>
     <url-pattern>/getdjangoauthid</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>ProcessLoginESIAUser</display-name>
+    <servlet-name>ProcessLoginESIAUser</servlet-name>
+    <servlet-class>ru.curs.mellophone.web.ProcessLoginESIAUser</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ProcessLoginESIAUser</servlet-name>
+    <url-pattern>/loginesiauser</url-pattern>
+  </servlet-mapping>
 </web-app>
