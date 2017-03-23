@@ -18,8 +18,31 @@
 	
 	
 <!--
+
+	<sqlserver>
+		<logging>true</logging>
+		<url>jdbc:postgresql://localhost:5432/postgres</url>
+		<connectionusername>postgres</connectionusername>
+		<connectionpassword>F708420Dx</connectionpassword>
+		<table>Пользователи</table>
+		<fieldlogin>Логин</fieldlogin>
+		<fieldpassword>Пароль</fieldpassword>
+		<fieldblocked>Заблокированный</fieldblocked>		
+		<searchreturningattributes
+		  SID="Поле objectSid"		
+		  login="Логин" 
+		  name="Поле name"
+		  email="Поле email"
+		  phone="Поле phone"	
+		  organization = "" 
+		  fax = "Поле fax"	  
+		/>
+	</sqlserver>
+
 -->
 
+<!--
+-->
 
 	<sqlserver>
 	    <id>test</id>
@@ -30,6 +53,7 @@
 		<table>Пользователи</table>
 		<fieldlogin>Логин</fieldlogin>
 		<fieldpassword>Пароль</fieldpassword>
+		<fieldblocked>Заблокированный</fieldblocked>
 		<hashalgorithm>SHA-256</hashalgorithm>
 		<localsecuritysalt>0763bdd890421f02bba7bfe8b456c69f</localsecuritysalt>
 		
@@ -51,7 +75,7 @@
 
 
 <!--
--->
+
 
 	<xmlfile>
 	    <id>test2</id>	
@@ -63,7 +87,7 @@
 	</xmlfile>
 
 
-
+-->
 
 
 			
