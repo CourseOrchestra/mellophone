@@ -14,6 +14,10 @@ public enum BadLoginType {
 	 * Неуспешная проверка пользователя процедурой proccheckuser в
 	 * SQLLoginProvider'e.
 	 */
-	BAD_PROC_CHECK_USER;
+	BAD_PROC_CHECK_USER,
+	/**
+	 * Пользователь постоянно заблокирован.
+	 */
+	USER_BLOCKED_PERMANENTLY;	
 
 }

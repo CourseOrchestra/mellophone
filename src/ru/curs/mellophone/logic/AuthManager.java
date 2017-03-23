@@ -1680,6 +1680,14 @@ public final class AuthManager {
 								.setFieldPassword(value);
 				}
 			});
+			actions.put("fieldblocked", new ParserAction() {
+				@Override
+				void characters(String value) {
+					if (loginProviders.size() > 0)
+						((SQLLoginProvider) loginProviders.getLast())
+								.setFieldBlocked(value);
+				}
+			});
 			actions.put("hashalgorithm", new ParserAction() {
 				@Override
 				void characters(String value) {

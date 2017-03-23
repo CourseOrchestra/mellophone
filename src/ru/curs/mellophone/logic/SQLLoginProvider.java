@@ -33,6 +33,8 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 	private static final String USER_LOGIN = "Логин пользователя '";
 	private static final String ERROR_SQL_SERVER = "Ошибка при работе с базой '%s': %s. Запрос: '%s'";
 	
+	private static final String USER_IS_BLOCKED_PERMANENTLY = "User %s is blocked permanently.";	
+	
 	private static final String PASSWORD_DIVIDER   = "#";
 	
 	private static ConcurrentHashMap<String, MessageDigest> mdPool = new ConcurrentHashMap<String, MessageDigest>(4);
@@ -46,6 +48,7 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 	private String table;
 	private String fieldLogin;
 	private String fieldPassword;
+	private String fieldBlocked = null;
 	private String hashAlgorithm = "SHA-256";
 	private String localSecuritySalt = "";
 	private String procCheckUser = null;
@@ -78,6 +81,10 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 
 	void setFieldPassword(String fieldPassword) {
 		this.fieldPassword = fieldPassword;
+	}
+	
+	void setFieldBlocked(String fieldBlocked) {
+		this.fieldBlocked = fieldBlocked;
 	}
 	
 	void setHashAlgorithm(String hashAlgorithm) {
@@ -236,59 +243,71 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 			if (hasResult) {
 				ResultSet rs = stat.getResultSet();
 				if (rs.next()) {
-					String pwdComplex = rs.getString(fieldPassword);
 					
-					if ((pwdComplex != null)
-							&& (pwdComplex.equals(password) || checkPasswordHash(pwdComplex, password))) {
+					if(fieldBlocked != null){
+						if(rs.getBoolean(fieldBlocked)){
+							success = false;
+							message = String.format(USER_IS_BLOCKED_PERMANENTLY, login);
+							blt = BadLoginType.USER_BLOCKED_PERMANENTLY;
+						}
+					}
+					
+					if(blt != BadLoginType.USER_BLOCKED_PERMANENTLY){
+						String pwdComplex = rs.getString(fieldPassword);
 						
-						if ((procCheckUser != null) && (ip != null)) {
-							CallableStatement cs = ((SQLLink) context).conn
-									.prepareCall(String.format(
-											"{? = call %s (?, ?, ?)}",
-											procCheckUser));
+						if ((pwdComplex != null)
+								&& (pwdComplex.equals(password) || checkPasswordHash(pwdComplex, password))) {
+							
+							if ((procCheckUser != null) && (ip != null)) {
+								CallableStatement cs = ((SQLLink) context).conn
+										.prepareCall(String.format(
+												"{? = call %s (?, ?, ?)}",
+												procCheckUser));
 
-							cs.registerOutParameter(1, java.sql.Types.INTEGER);
-							cs.setString(2, login);
-							cs.setString(3, ip);
-							cs.registerOutParameter(4, java.sql.Types.VARCHAR);
+								cs.registerOutParameter(1, java.sql.Types.INTEGER);
+								cs.setString(2, login);
+								cs.setString(3, ip);
+								cs.registerOutParameter(4, java.sql.Types.VARCHAR);
 
-							cs.execute();
-							int errorCode = cs.getInt(1);
-							if (errorCode == 0) {
+								cs.execute();
+								int errorCode = cs.getInt(1);
+								if (errorCode == 0) {
+									success = true;
+									message = USER_LOGIN + login + "' в '"
+											+ getConnectionUrl() + "' успешен!";
+								} else {
+									success = false;
+									message = cs.getString(4);
+									blt = BadLoginType.BAD_PROC_CHECK_USER;
+								}
+							} else {
 								success = true;
 								message = USER_LOGIN + login + "' в '"
 										+ getConnectionUrl() + "' успешен!";
-							} else {
-								success = false;
-								message = cs.getString(4);
-								blt = BadLoginType.BAD_PROC_CHECK_USER;
 							}
-						} else {
-							success = true;
-							message = USER_LOGIN + login + "' в '"
-									+ getConnectionUrl() + "' успешен!";
+
 						}
 
-					}
+						if (success && (pw != null)) {
 
-					if (success && (pw != null)) {
+							String[] attrs = searchReturningAttributes.keySet()
+									.toArray(new String[0]);
+							XMLStreamWriter xw = XMLOutputFactory.newInstance()
+									.createXMLStreamWriter(pw);
 
-						String[] attrs = searchReturningAttributes.keySet()
-								.toArray(new String[0]);
-						XMLStreamWriter xw = XMLOutputFactory.newInstance()
-								.createXMLStreamWriter(pw);
+							xw.writeStartDocument("utf-8", "1.0");
+							xw.writeEmptyElement("user");
+							for (String attr : attrs) {
+								writeXMLAttr(xw, attr,
+										rs.getString(searchReturningAttributes
+												.get(attr)));
+							}
+							xw.writeEndDocument();
+							xw.flush();
 
-						xw.writeStartDocument("utf-8", "1.0");
-						xw.writeEmptyElement("user");
-						for (String attr : attrs) {
-							writeXMLAttr(xw, attr,
-									rs.getString(searchReturningAttributes
-											.get(attr)));
 						}
-						xw.writeEndDocument();
-						xw.flush();
-
 					}
+					
 
 				}
 			}
@@ -352,6 +371,15 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 				if (s.contains(field)) {
 					continue;
 				}
+				s = s + ", " + field;
+			}
+		}
+		
+		if(fieldBlocked != null){
+			String field = String.format("\"%s\"", fieldBlocked);
+			if(s == null){
+				s = field;
+			} else {
 				s = s + ", " + field;
 			}
 		}
