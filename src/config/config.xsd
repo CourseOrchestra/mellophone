@@ -14,6 +14,8 @@
                             <xs:element minOccurs="0" name="sessiontimeout" />
                             <xs:element minOccurs="0" name="authsessions" />
                             <xs:element minOccurs="0" name="appsessions" />
+                            <xs:element minOccurs="0" name="lockouttime" />
+                            <xs:element minOccurs="0" name="setsettingstoken" />
                         </xs:sequence>                            
                     </xs:complexType>
                 </xs:element>

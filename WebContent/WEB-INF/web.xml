@@ -196,4 +196,14 @@
     <servlet-name>ProcessGetDjangoAuthId</servlet-name>
     <url-pattern>/getdjangoauthid</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>ProcessSetSettings</display-name>
+    <servlet-name>ProcessSetSettings</servlet-name>
+    <servlet-class>ru.curs.mellophone.web.ProcessSetSettings</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ProcessSetSettings</servlet-name>
+    <url-pattern>/setsettings</url-pattern>
+  </servlet-mapping>
 </web-app>

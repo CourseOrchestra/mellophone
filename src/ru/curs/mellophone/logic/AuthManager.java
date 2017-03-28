@@ -5,6 +5,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -101,6 +104,12 @@ public final class AuthManager {
 	/** Залоченные (за повторное использование паролей) пользователи. */
 	private final LockoutManager lockouts = new LockoutManager();
 
+	
+	private String settingsToken = null;
+	
+	private String configPath = null;
+
+
 	private String initializationError = null;
 
 	/** Ошибка при инициализации приложения. */
@@ -132,8 +141,6 @@ public final class AuthManager {
 	 */
 	public void productionModeInitialize(final ServletContext servletContext) {
 		
-		String configPath = null;
-
 		try {
 			configPath = servletContext
 					.getInitParameter(MELLOPHONE_CONFIG_PATH);
@@ -1448,6 +1455,39 @@ public final class AuthManager {
 				+ "\"});");
 
 	}
+	
+	public void setSettings(String token, String lockoutTime) throws EAuthServerLogic {
+		
+		if((settingsToken==null) || (token == null) || (!settingsToken.equals(token))){
+			throw EAuthServerLogic.create("Permission denied.");			
+		}
+
+		try {
+			
+			LockoutManager.setLockoutTime(Integer.valueOf(lockoutTime));
+			
+			
+			String sFile = new String(Files.readAllBytes(Paths.get(configPath)), "UTF-8");
+			
+			int pos1 = sFile.indexOf("<lockouttime>");
+			if(pos1 == -1){
+				throw EAuthServerLogic.create("config.xml does not contain &lt;lockouttime&gt; tag.");
+			}
+			
+			int pos2 = sFile.indexOf("</lockouttime>");
+			
+			String s = sFile.substring(pos1, pos2);
+			
+			sFile = sFile.replace(s, "<lockouttime>"+lockoutTime);
+			
+			Files.write(Paths.get(configPath), sFile.getBytes("UTF-8"), StandardOpenOption.CREATE);
+			
+		} catch (Exception e) {
+			throw EAuthServerLogic.create(e);
+		}
+	}
+		
+
 
 	/**
 	 * Аутентифицированная сессия. Содержит закэшированный (в оперативной
@@ -1831,6 +1871,22 @@ public final class AuthManager {
 					if (value != null) {
 						sessionTimeout = Integer.valueOf(value);
 					}
+				}
+			});
+			
+			actions.put("lockouttime", new ParserAction() {
+				@Override
+				void characters(String value) {
+					if (value != null) {
+						LockoutManager.setLockoutTime(Integer.valueOf(value));
+					}
+				}
+			});
+			
+			actions.put("setsettingstoken", new ParserAction() {
+				@Override
+				void characters(String value) {
+					settingsToken = value;
 				}
 			});
 
