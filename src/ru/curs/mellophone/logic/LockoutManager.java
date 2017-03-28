@@ -8,7 +8,11 @@ import java.util.HashMap;
  */
 final class LockoutManager {
 	private static final int ATTEMPTS_ALLOWED = 5;
-	private static final long LOCKOUT_TIME = 10 * 60 * 1000;
+	
+	private static long lockoutTime = 10 * 60 * 1000;
+	public static void setLockoutTime(long lockoutTime) {
+		LockoutManager.lockoutTime = lockoutTime * 60 * 1000;
+	}
 
 	private final HashMap<String, LoginCounter> lockouts = new HashMap<String, LoginCounter>();
 
@@ -22,7 +26,7 @@ final class LockoutManager {
 		void fail() {
 			attemptsCount++;
 			if (attemptsCount >= ATTEMPTS_ALLOWED) {
-				lockoutUntil = System.currentTimeMillis() + LOCKOUT_TIME;
+				lockoutUntil = System.currentTimeMillis() + lockoutTime;
 			}
 		}
 
