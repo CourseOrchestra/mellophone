@@ -1,13 +1,12 @@
 package ru.curs.mellophone.logic;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -1506,10 +1505,18 @@ public final class AuthManager {
 
 		try {
 			
-			LockoutManager.setLockoutTime(Integer.valueOf(lockoutTime));
-			
-			
-			String sFile = new String(Files.readAllBytes(Paths.get(configPath)), "UTF-8");
+			String sFile = null; 
+		    try(FileInputStream fin = new FileInputStream(configPath))
+		    {
+		    	sFile = TextUtils.streamToString(fin);
+			    	  
+		        System.out.println("-------------После считывания из файла");
+		        System.out.println(sFile);
+		        System.out.println("-------------");
+		    }
+			if(sFile == null){
+				throw EAuthServerLogic.create("Error reading config.xml.");
+			}
 			
 			int pos1 = sFile.indexOf("<lockouttime>");
 			if(pos1 == -1){
@@ -1522,7 +1529,17 @@ public final class AuthManager {
 			
 			sFile = sFile.replace(s, "<lockouttime>"+lockoutTime);
 			
-			Files.write(Paths.get(configPath), sFile.getBytes("UTF-8"), StandardOpenOption.CREATE);
+	        System.out.println("-------------После замены");
+	        System.out.println(sFile);
+	        System.out.println("-------------");
+	        
+		    try(FileOutputStream fout = new FileOutputStream(configPath))
+		    {
+		    	fout.write(sFile.getBytes("UTF-8"));
+		    }
+			
+			
+			LockoutManager.setLockoutTime(Integer.valueOf(lockoutTime));
 			
 		} catch (Exception e) {
 			throw EAuthServerLogic.create(e);
