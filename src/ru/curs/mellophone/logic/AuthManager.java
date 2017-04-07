@@ -1509,10 +1509,6 @@ public final class AuthManager {
 		    try(FileInputStream fin = new FileInputStream(configPath))
 		    {
 		    	sFile = TextUtils.streamToString(fin);
-			    	  
-		        System.out.println("-------------После считывания из файла");
-		        System.out.println(sFile);
-		        System.out.println("-------------");
 		    }
 			if(sFile == null){
 				throw EAuthServerLogic.create("Error reading config.xml.");
@@ -1529,10 +1525,6 @@ public final class AuthManager {
 			
 			sFile = sFile.replace(s, "<lockouttime>"+lockoutTime);
 			
-	        System.out.println("-------------После замены");
-	        System.out.println(sFile);
-	        System.out.println("-------------");
-	        
 		    try(FileOutputStream fout = new FileOutputStream(configPath))
 		    {
 		    	fout.write(sFile.getBytes("UTF-8"));
