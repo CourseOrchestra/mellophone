@@ -41,6 +41,10 @@ final class LockoutManager {
 			attemptsCount = 0;
 			return false;
 		}
+		
+		long getTimeToUnlock() {
+			return (lockoutUntil - System.currentTimeMillis()) / 1000;
+		}
 	}
 
 	/**
@@ -52,6 +56,17 @@ final class LockoutManager {
 	public synchronized boolean isLocked(String login) {
 		LoginCounter lc = lockouts.get(login);
 		return lc == null ? false : lc.isLocked();
+	}
+	
+	/**
+	 * Возвращает время (в секундах) до разблокировки пользователя.
+	 * 
+	 * @param login
+	 *            логин пользователя.
+	 */
+	public synchronized long getTimeToUnlock(String login) {
+		LoginCounter lc = lockouts.get(login);
+		return lc == null ? -1 : lc.getTimeToUnlock();
 	}
 
 	/**

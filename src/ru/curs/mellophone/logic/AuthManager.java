@@ -64,7 +64,7 @@ public final class AuthManager {
 	private static final String PROVIDER_ERROR = "При взаимодействии с логин-провайдером произошла следующая ошибка: %s";
 	private static final String LOGIN_TO_PROVIDER_SUCCESSFUL_BUT_USER_NOT_FOUND_IN_BASE = "Логин "
 			+ "прошел успешно, но данный пользователь не найден в базе.";
-	private static final String USER_IS_LOCKED_OUT_FOR_TOO_MANY_UNSUCCESSFUL_LOGIN_ATTEMPTS = "User %s is locked out for too many unsuccessful login attempts.";
+	private static final String USER_IS_LOCKED_OUT_FOR_TOO_MANY_UNSUCCESSFUL_LOGIN_ATTEMPTS = "User %s is locked out for too many unsuccessful login attempts. Time to unlock: %s s.";
 	
 	
 	/**
@@ -270,7 +270,7 @@ public final class AuthManager {
 		if (lockouts.isLocked(login))
 		{
 			String s = String.format(USER_IS_LOCKED_OUT_FOR_TOO_MANY_UNSUCCESSFUL_LOGIN_ATTEMPTS,
-							login); 
+							login, lockouts.getTimeToUnlock(login)); 
 
 			LOGGER.error(s);
 
@@ -411,7 +411,7 @@ public final class AuthManager {
 		if (lockouts.isLocked(login))
 		{
 			String s = String.format(USER_IS_LOCKED_OUT_FOR_TOO_MANY_UNSUCCESSFUL_LOGIN_ATTEMPTS,
-							login); 
+							login, lockouts.getTimeToUnlock(login)); 
 
 			LOGGER.error(s);
 
@@ -559,7 +559,7 @@ public final class AuthManager {
 		if (lockouts.isLocked(login))
 		{
 			String s = String.format(USER_IS_LOCKED_OUT_FOR_TOO_MANY_UNSUCCESSFUL_LOGIN_ATTEMPTS,
-							login); 
+							login, lockouts.getTimeToUnlock(login)); 
 
 			LOGGER.error(s);
 
@@ -695,7 +695,7 @@ public final class AuthManager {
 		if (lockouts.isLocked(login))
 		{
 			String s = String.format(USER_IS_LOCKED_OUT_FOR_TOO_MANY_UNSUCCESSFUL_LOGIN_ATTEMPTS,
-							login); 
+							login, lockouts.getTimeToUnlock(login)); 
 
 			LOGGER.error(s);
 
