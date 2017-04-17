@@ -16,6 +16,7 @@
                             <xs:element minOccurs="0" name="appsessions" />
                             <xs:element minOccurs="0" name="lockouttime" />
                             <xs:element minOccurs="0" name="setsettingstoken" />
+                            <xs:element minOccurs="0" name="showtimetounlockuser" />
                         </xs:sequence>                            
                     </xs:complexType>
                 </xs:element>
