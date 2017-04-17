@@ -64,7 +64,8 @@ public final class AuthManager {
 	private static final String PROVIDER_ERROR = "При взаимодействии с логин-провайдером произошла следующая ошибка: %s";
 	private static final String LOGIN_TO_PROVIDER_SUCCESSFUL_BUT_USER_NOT_FOUND_IN_BASE = "Логин "
 			+ "прошел успешно, но данный пользователь не найден в базе.";
-	private static final String USER_IS_LOCKED_OUT_FOR_TOO_MANY_UNSUCCESSFUL_LOGIN_ATTEMPTS = "User %s is locked out for too many unsuccessful login attempts. Time to unlock: %s s.";
+	private static final String USER_IS_LOCKED_OUT_FOR_TOO_MANY_UNSUCCESSFUL_LOGIN_ATTEMPTS = "User %s is locked out for too many unsuccessful login attempts.";
+	private static final String TIME_TO_UNLOCK = "Time to unlock: %s s.";
 	
 	
 	/**
@@ -108,6 +109,8 @@ public final class AuthManager {
 	private String settingsToken = null;
 	
 	private String configPath = null;
+	
+	private boolean showTimeToUnlockUser = false;
 
 	private String initializationError = null;
 
@@ -269,13 +272,11 @@ public final class AuthManager {
 		
 		if (lockouts.isLocked(login))
 		{
-			String s = String.format(USER_IS_LOCKED_OUT_FOR_TOO_MANY_UNSUCCESSFUL_LOGIN_ATTEMPTS,
-							login, lockouts.getTimeToUnlock(login)); 
-
+			String s = getMessageUserIslockedOutForTooManyUnsuccessfulLoginAttempts(login);
+			
 			LOGGER.error(s);
 
-			throw EAuthServerLogic
-					.create(s);
+			throw EAuthServerLogic.create(s);
 		}
 
 		final StringBuffer errlog = new StringBuffer();		
@@ -410,13 +411,11 @@ public final class AuthManager {
 		
 		if (lockouts.isLocked(login))
 		{
-			String s = String.format(USER_IS_LOCKED_OUT_FOR_TOO_MANY_UNSUCCESSFUL_LOGIN_ATTEMPTS,
-							login, lockouts.getTimeToUnlock(login)); 
-
+			String s = getMessageUserIslockedOutForTooManyUnsuccessfulLoginAttempts(login);
+			
 			LOGGER.error(s);
 
-			throw EAuthServerLogic
-					.create(s);
+			throw EAuthServerLogic.create(s);
 		}
 
 		final StringBuffer errlog = new StringBuffer();		
@@ -558,9 +557,8 @@ public final class AuthManager {
 		
 		if (lockouts.isLocked(login))
 		{
-			String s = String.format(USER_IS_LOCKED_OUT_FOR_TOO_MANY_UNSUCCESSFUL_LOGIN_ATTEMPTS,
-							login, lockouts.getTimeToUnlock(login)); 
-
+			String s = getMessageUserIslockedOutForTooManyUnsuccessfulLoginAttempts(login);
+			
 			LOGGER.error(s);
 
 			throw EAuthServerLogic.create(s);
@@ -658,9 +656,13 @@ public final class AuthManager {
 		
 	}
 	
-	
-	
-	
+	private String getMessageUserIslockedOutForTooManyUnsuccessfulLoginAttempts(String login) {
+		String s = String.format(USER_IS_LOCKED_OUT_FOR_TOO_MANY_UNSUCCESSFUL_LOGIN_ATTEMPTS, login);
+		if(showTimeToUnlockUser){
+			s = s+" "+String.format(TIME_TO_UNLOCK, lockouts.getTimeToUnlock(login));
+		}
+		return s;
+	}
 	
 	/**
 	 * 1.Разаутентифицирует сессию с идентификатором приложения sesid и все
@@ -694,13 +696,11 @@ public final class AuthManager {
 		
 		if (lockouts.isLocked(login))
 		{
-			String s = String.format(USER_IS_LOCKED_OUT_FOR_TOO_MANY_UNSUCCESSFUL_LOGIN_ATTEMPTS,
-							login, lockouts.getTimeToUnlock(login)); 
+			String s = getMessageUserIslockedOutForTooManyUnsuccessfulLoginAttempts(login); 
 
 			LOGGER.error(s);
 
-			throw EAuthServerLogic
-					.create(s);
+			throw EAuthServerLogic.create(s);
 		}
 
 		final ArrayList<String> userInfo = new ArrayList<String>();
@@ -1940,7 +1940,16 @@ public final class AuthManager {
 					settingsToken = value;
 				}
 			});
-
+			
+			actions.put("showtimetounlockuser", new ParserAction() {
+				@Override
+				void characters(String value) {
+					if (value != null) {
+						showTimeToUnlockUser = Boolean.valueOf(value);
+					}
+				}
+			});
+			
 		}
 
 		@Override

@@ -15,16 +15,18 @@
 		<appsessions initialCapacity="10000" loadFactor="80" concurrencyLevel="128"/>
 	
 	
- 	    <lockouttime>10</lockouttime>
+ 	    <lockouttime>1</lockouttime>
 	    
-	    <setsettingstoken>43c42c2ee9210b0a77166a37f82bb4b6</setsettingstoken>	    
+	    <setsettingstoken>43c42c2ee9210b0a77166a37f82bb4b6</setsettingstoken>
+	    
+	    <showtimetounlockuser>true</showtimetounlockuser>	    
 
 		
 	</common>
 	
 	
 <!--
-
+-->
 	
 	<xmlfile>
 	    <id>test2</id>	
@@ -34,7 +36,7 @@
 		</url>
 		<trusteduser>Иванов1</trusteduser>
 	</xmlfile>
--->	
+	
 
 
 <!--
