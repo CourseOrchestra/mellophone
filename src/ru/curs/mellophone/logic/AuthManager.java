@@ -977,14 +977,12 @@ public final class AuthManager {
 
 		String authid = appsessions.get(sesid);
 		if (authid == null) {
-			throw EAuthServerLogic.create(String.format(SESID_NOT_AUTH, sesid
-					+ "__1"));
+			throw EAuthServerLogic.create(String.format(SESID_NOT_AUTH, sesid + "__1"));
 		}
 
 		AuthSession as = authsessions.get(authid);
 		if (as == null) {
-			throw EAuthServerLogic.create(String.format(SESID_NOT_AUTH, sesid
-					+ "__2"));
+			throw EAuthServerLogic.create(String.format(SESID_NOT_AUTH, sesid + "__2"));
 		}
 
 		if ((ip != null) && (as.getIp() != null)) {
@@ -1116,8 +1114,9 @@ public final class AuthManager {
 			throw EAuthServerLogic.create(String.format(SESID_NOT_AUTH, sesid));
 
 		AuthSession as = authsessions.get(authid);
-		if (as == null)
+		if (as == null){
 			throw EAuthServerLogic.create(String.format(SESID_NOT_AUTH, sesid));
+		}
 
 		try {
 			ProviderContextHolder context = as.config.newContextHolder();
@@ -1169,12 +1168,14 @@ public final class AuthManager {
 		String name = null;
 
 		String authid = appsessions.get(sesid);
-		if (authid == null)
+		if (authid == null){
 			throw EAuthServerLogic.create(String.format(SESID_NOT_AUTH, sesid));
+		}
 
 		AuthSession as = authsessions.get(authid);
-		if (as == null)
+		if (as == null){
 			throw EAuthServerLogic.create(String.format(SESID_NOT_AUTH, sesid));
+		}
 
 		try {
 			ProviderContextHolder context = as.config.newContextHolder();
@@ -1201,8 +1202,7 @@ public final class AuthManager {
 
 			name = as.getName();
 		} catch (Exception e) {
-			throw EAuthServerLogic.create(String.format(PROVIDER_ERROR,
-					e.getMessage()));
+			throw EAuthServerLogic.create(String.format(PROVIDER_ERROR,	e.getMessage()));
 		}
 
 		return name;
@@ -1284,7 +1284,6 @@ public final class AuthManager {
 		}
 
 		return res;
-
 	}
 
 	/**

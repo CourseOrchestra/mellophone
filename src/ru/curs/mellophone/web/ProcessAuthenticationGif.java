@@ -73,11 +73,11 @@ public class ProcessAuthenticationGif extends BaseProcessorServlet {
 					}
 				}
 			}
-			if (cookAuthsesid != null)
+			if (cookAuthsesid != null){
 				authsesid = cookAuthsesid.getValue();
+			}
 
-			authsesid = AuthManager.getTheManager().authenticationGif(sesid,
-					authsesid);
+			authsesid = AuthManager.getTheManager().authenticationGif(sesid, authsesid);
 
 			// if ("AUTH_OK".equals(authsesid)) //DEBUG!!!!!!!!!!
 			// authsesid = "ww1";

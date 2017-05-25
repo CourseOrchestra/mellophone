@@ -14,7 +14,7 @@ import ru.curs.mellophone.logic.EAuthServerLogic;
  * Servlet implementation /loginesiauser?sesid=...
  */
 public class ProcessLoginESIAUser extends BaseProcessorServlet {
-	private static final long serialVersionUID = -6071358374749875674L;
+	private static final long serialVersionUID = -7262116542954365667L;
 
 	@Override
 	protected void service(HttpServletRequest request,
