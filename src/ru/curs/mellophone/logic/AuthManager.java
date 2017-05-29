@@ -127,11 +127,9 @@ public final class AuthManager {
 	 *            ServletContext
 	 */
 	public void productionModeDestroy(final ServletContext servletContext) {
-		
 		if (timerTimeout != null) {
 			timerTimeout.cancel();
 		}
-
 	}
 	
 
@@ -999,6 +997,7 @@ public final class AuthManager {
 				&& (as.config != null)
 				&& (!"IASBPLoginProvider".equalsIgnoreCase(as.config.getClass()
 						.getSimpleName()))) {
+			
 			try {
 				ProviderContextHolder context = as.config.newContextHolder();
 				try {
@@ -1066,8 +1065,7 @@ public final class AuthManager {
 						.getSimpleName()))
 						&& (!"SQLLoginProvider".equalsIgnoreCase(as.config
 								.getClass().getSimpleName()))) {
-					as.config.connect(as.getName(), as.getPwd(), null, context,
-							null);
+					as.config.connect(as.getName(), as.getPwd(), null, context,	null);
 				}
 				as.config.getUserInfoByName(context, name, pw);
 			} finally {
@@ -1199,7 +1197,6 @@ public final class AuthManager {
 				}
 			
 			}
-
 			name = as.getName();
 		} catch (Exception e) {
 			throw EAuthServerLogic.create(String.format(PROVIDER_ERROR,	e.getMessage()));
@@ -1233,9 +1230,7 @@ public final class AuthManager {
 				return "AUTH_OK";
 			}
 		}
-
 		return appsessions.get(sesid);
-
 	}
 
 	/**

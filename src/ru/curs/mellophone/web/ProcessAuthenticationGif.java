@@ -42,11 +42,9 @@ public class ProcessAuthenticationGif extends BaseProcessorServlet {
 			break;
 		}
 
-		ClassLoader classLoader = Thread.currentThread()
-				.getContextClassLoader();
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
-		BufferedImage buffer = ImageIO.read(classLoader
-				.getResourceAsStream(DIR_IMAGES + banner));
+		BufferedImage buffer = ImageIO.read(classLoader.getResourceAsStream(DIR_IMAGES + banner));
 
 		OutputStream os = response.getOutputStream();
 		ImageIO.write(buffer, IMAGE_EXT, os);

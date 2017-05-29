@@ -14,7 +14,7 @@ import ru.curs.mellophone.logic.EAuthServerLogic;
  * Servlet implementation /loginesiauser?sesid=...
  */
 public class ProcessLoginESIAUser extends BaseProcessorServlet {
-	private static final long serialVersionUID = -7262116542954365667L;
+	private static final long serialVersionUID = -7262116445954365667L;
 
 	@Override
 	protected void service(HttpServletRequest request,
@@ -35,6 +35,7 @@ public class ProcessLoginESIAUser extends BaseProcessorServlet {
 				PrintWriter pw = response.getWriter();
 				AuthManager.getTheManager().loginESIAUser(sesid, login, userinfo, pw);
 				pw.flush();
+				
 				response.setStatus(HttpServletResponse.SC_OK);
 			} catch (EAuthServerLogic e) {
 				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
