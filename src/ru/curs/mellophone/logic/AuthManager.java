@@ -823,9 +823,17 @@ public final class AuthManager {
 
 		if (result.size() == 0) {
 			if (errlog.toString().trim().isEmpty()) {
-				errlog.append("Неправильная пара логин/пароль");
+				errlog.append("Неправильная пара логин/пароль.");
 			}
 			lockouts.loginFail(login);
+			
+			if (lockouts.isLocked(login))
+			{
+				String s = getMessageUserIslockedOutForTooManyUnsuccessfulLoginAttempts(login); 
+				LOGGER.error(s);
+				resumeMessage.append(". " + s);
+			}
+			
 			throw EAuthServerLogic
 					.create(String.format(PROVIDER_ERROR, errlog.toString()
 							+ "\nРезюме: " + resumeMessage.toString()));
