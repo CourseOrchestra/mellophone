@@ -1,0 +1,4 @@
+﻿tomcat.home    = d:/Program Files/Apache Software Foundation/Tomcat 6.0
+# Блок свойств необходимых для непрерывной интеграции Mellophone (continious integration - ci) на Jenkins.
+#не изменять эти свойства без специальной необходимости.
+ci.tomcat.dir = d:/Showcase_Tomcat7
