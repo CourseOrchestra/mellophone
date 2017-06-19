@@ -88,7 +88,7 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>RELEASE</version>
+			<version>9.2-1004-jdbc4</version>
 		</dependency>
 
 		<dependency>
@@ -117,8 +117,8 @@
 
 		<dependency>
 			<groupId>com.oracle.jdbc</groupId>
-			<artifactId>ojdbc6</artifactId>
-			<version>11.2.0</version>
+			<artifactId>ojdbc7</artifactId>
+			<version>12.1.0.2</version>
 		</dependency>
 
 	</dependencies>
