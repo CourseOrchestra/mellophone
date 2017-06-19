@@ -123,7 +123,7 @@
 
 	</dependencies>
 	<build>
-		<finalName>mellophone</finalName>
+		<finalName>${project.artifactId}-${project.version}.${revision.number}_build${build.number}</finalName>
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
@@ -145,6 +145,26 @@
 				<configuration>
 					<warSourceDirectory>src/main/webapp</warSourceDirectory>
 				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>config</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<finalName>config-${project.version}.${revision.number}_build${build.number}</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
+							<descriptors>
+								<descriptor>src/assembly/config_bin.xml</descriptor>
+							</descriptors>
+							<attach>false</attach>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
