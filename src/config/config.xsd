@@ -17,6 +17,7 @@
                             <xs:element minOccurs="0" name="lockouttime" />
                             <xs:element minOccurs="0" name="setsettingstoken" />
                             <xs:element minOccurs="0" name="showtimetounlockuser" />
+                            <xs:element minOccurs="0" name="checkpasswordhashonly" />
                         </xs:sequence>                            
                     </xs:complexType>
                 </xs:element>

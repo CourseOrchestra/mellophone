@@ -92,6 +92,12 @@ public final class AuthManager {
 	private int appsessionsInitialCapacity = 16;
 	private float appsessionsLoadFactor = (float) 0.75;
 	private int appsessionsConcurrencyLevel = 16;
+	
+	private boolean checkPasswordHashOnly = false;
+	
+	public boolean isCheckPasswordHashOnly() {
+		return checkPasswordHashOnly;
+	}
 
 	/**
 	 * Количество потоков, параллельно опрашивающих логин-провайдеры.
@@ -1948,6 +1954,15 @@ public final class AuthManager {
 				void characters(String value) {
 					if (value != null) {
 						showTimeToUnlockUser = Boolean.valueOf(value);
+					}
+				}
+			});
+			
+			actions.put("checkpasswordhashonly", new ParserAction() {
+				@Override
+				void characters(String value) {
+					if (value != null) {
+						checkPasswordHashOnly = Boolean.valueOf(value);
 					}
 				}
 			});

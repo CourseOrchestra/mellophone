@@ -19,14 +19,17 @@
 	    
 	    <setsettingstoken>43c42c2ee9210b0a77166a37f82bb4b6</setsettingstoken>
 	    
-	    <showtimetounlockuser>true</showtimetounlockuser>	    
+	    <showtimetounlockuser>true</showtimetounlockuser>
+	    
+	    	    
+   	    <checkpasswordhashonly>true</checkpasswordhashonly>
 
 		
 	</common>
 	
 	
 <!--
--->
+
 	
 	<xmlfile>
 	    <id>test2</id>	
@@ -36,7 +39,7 @@
 		</url>
 		<trusteduser>Иванов1</trusteduser>
 	</xmlfile>
-	
+-->	
 
 
 <!--

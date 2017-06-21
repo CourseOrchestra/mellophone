@@ -256,7 +256,7 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 						String pwdComplex = rs.getString(fieldPassword);
 						
 						if ((pwdComplex != null)
-								&& (pwdComplex.equals(password) || checkPasswordHash(pwdComplex, password))) {
+								&& ((!AuthManager.getTheManager().isCheckPasswordHashOnly()) && pwdComplex.equals(password) || checkPasswordHash(pwdComplex, password))) {
 							
 							if ((procCheckUser != null) && (ip != null)) {
 								CallableStatement cs = ((SQLLink) context).conn
