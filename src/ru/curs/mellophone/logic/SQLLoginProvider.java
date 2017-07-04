@@ -231,13 +231,13 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 			((SQLLink) context).conn = getConnection();
 			
 			sql = String.format(
-					"SELECT \"%s\", %s FROM \"%s\" WHERE \"%s\" = ?",
+					"SELECT \"%s\", %s FROM \"%s\" WHERE lower(\"%s\") = ?",
 					fieldPassword, getSelectFields(), table, fieldLogin);
 
 			PreparedStatement stat = ((SQLLink) context).conn
 					.prepareStatement(sql);
 
-			stat.setString(1, login);
+			stat.setString(1, login.toLowerCase());
 
 			boolean hasResult = stat.execute();
 			if (hasResult) {
@@ -402,11 +402,11 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 		try {
 			((SQLLink) context).conn = getConnection();
 
-			sql = String.format("SELECT %s FROM \"%s\" WHERE \"%s\" = ?",
+			sql = String.format("SELECT %s FROM \"%s\" WHERE lower(\"%s\") = ?",
 					getSelectFields(), table, fieldLogin);
 			PreparedStatement stat = ((SQLLink) context).conn
 					.prepareStatement(sql);
-			stat.setString(1, name);
+			stat.setString(1, name.toLowerCase());
 
 			boolean hasResult = stat.execute();
 			if (hasResult) {
