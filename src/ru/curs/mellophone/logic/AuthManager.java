@@ -114,6 +114,8 @@ public final class AuthManager {
 	
 	private String settingsToken = null;
 	
+	private String getuserlistToken = null;
+	
 	private String configPath = null;
 	
 	private boolean showTimeToUnlockUser = false;
@@ -555,19 +557,12 @@ public final class AuthManager {
 	}
 	
 	
-	public void getUserList(final String providerId, final String groupProviders, final String login, 
-			final String password, final String ip, final PrintWriter pw)
-			throws EAuthServerLogic {
+	public void getUserList(final String providerId, final String groupProviders, String token, 
+			final String ip, final PrintWriter pw)	throws EAuthServerLogic {
 		
-		if (lockouts.isLocked(login))
-		{
-			String s = getMessageUserIslockedOutForTooManyUnsuccessfulLoginAttempts(login);
-			
-			LOGGER.error(s);
-
-			throw EAuthServerLogic.create(s);
+		if((getuserlistToken==null) || (token == null) || (!getuserlistToken.equals(token))){
+			throw EAuthServerLogic.create("Permission denied.");			
 		}
-		
 		
 		if (providerId != null) {
 			
@@ -581,36 +576,23 @@ public final class AuthManager {
 			}
 			
 			if(curProvider == null){
-				lockouts.loginFail(login);
 				String s = String.format("/getuserlist (pid = %s). Провайдер не найден.", providerId);
 				LOGGER.error(s);
 				throw EAuthServerLogic.create(s);
 			}
 			
-			if ((curProvider.getTrustedUsers() == null) || (curProvider.getTrustedUsers().indexOf(login) == -1)) {
-				lockouts.loginFail(login);
-				String s = String.format("/getuserlist (pid = %s). Провайдер не содержит доверенного пользователя %s.", providerId, login);
-				LOGGER.error(s);
-				throw EAuthServerLogic.create(s);
-			} 
-			
 			
 			try {
 				ProviderContextHolder ch = curProvider.newContextHolder();
 				try {
-					curProvider.connect(login, password, ip, ch, null);
 					curProvider.importUsers(ch, pw, true);
 				} finally {
 					ch.closeContext();
 				}
 			} catch (EAuthServerLogic e) {
-				lockouts.loginFail(login);
 				throw EAuthServerLogic.create(String.format(PROVIDER_ERROR, e.getMessage()));
 			}
-			
-			lockouts.success(login);
-			
-			
+
 		} else {
 			
 			boolean res = false;
@@ -622,18 +604,9 @@ public final class AuthManager {
 				if ((GROUP_PROVIDERS_ALL.equalsIgnoreCase(groupProviders))
 						|| (groupProviders.equals(curProvider.getGroupProviders()))){
 
-					if ((curProvider.getTrustedUsers() == null) || (curProvider.getTrustedUsers().indexOf(login) == -1)) {
-						lockouts.loginFail(login);
-						String s = String.format("Провайдер не содержит доверенного пользователя %s.", login);
-						errlog.append(curProvider.getConnectionUrl() + ": "
-								+ s + "\n");
-						continue;
-					}
-					
 					try {
 						ProviderContextHolder ch = curProvider.newContextHolder();
 						try {
-							curProvider.connect(login, password, ip, ch, null);
 							curProvider.importUsers(ch, pw, !res);
 							res = true;
 						} finally {
@@ -649,12 +622,9 @@ public final class AuthManager {
 			}
 			
 			if (!res) {
-				lockouts.loginFail(login);
 				throw EAuthServerLogic
 						.create(errlog.toString());
 			}
-			
-			lockouts.success(login);
 
 		}
 		
@@ -1946,6 +1916,13 @@ public final class AuthManager {
 				@Override
 				void characters(String value) {
 					settingsToken = value;
+				}
+			});
+			
+			actions.put("getuserlisttoken", new ParserAction() {
+				@Override
+				void characters(String value) {
+					getuserlistToken = value;
 				}
 			});
 			
