@@ -237,6 +237,11 @@ final class XMLLoginProvider extends AbstractLoginProvider {
 		};
 
 		try {
+			
+			if(((XMLLink) ldapLink).inXML == null){
+				((XMLLink) ldapLink).inXML = getXMLstream();	
+			}
+			
 			if(needStartDocument){
 				xw.writeStartDocument("utf-8", "1.0");					
 			}

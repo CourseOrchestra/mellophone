@@ -455,9 +455,13 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 		if (getLogger() != null) {
 			getLogger().debug("Url='" + getConnectionUrl() + "'");
 		}
-
+		
 		String sql = "";
 		try {
+			if(((SQLLink) context).conn == null){
+				((SQLLink) context).conn = getConnection();	
+			}
+			
 			sql = String.format("SELECT %s FROM \"%s\" ORDER BY \"%s\"",
 					getSelectFields(), table, fieldLogin);
 
