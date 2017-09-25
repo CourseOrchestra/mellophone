@@ -15,6 +15,7 @@
                             <xs:element minOccurs="0" name="authsessions" />
                             <xs:element minOccurs="0" name="appsessions" />
                             <xs:element minOccurs="0" name="lockouttime" />
+                            <xs:element minOccurs="0" name="loginattemptsallowed" />
                             <xs:element minOccurs="0" name="setsettingstoken" />
                             <xs:element minOccurs="0" name="getuserlisttoken" />
                             <xs:element minOccurs="0" name="showtimetounlockuser" />

@@ -1475,7 +1475,7 @@ public final class AuthManager {
 		
 	}
 	
-	public void setSettings(String token, String lockoutTime) throws EAuthServerLogic {
+	public void setSettings(String token, String lockoutTime, String loginAttemptsAllowed) throws EAuthServerLogic {
 		
 		if((settingsToken==null) || (token == null) || (!settingsToken.equals(token))){
 			throw EAuthServerLogic.create("Permission denied.");			
@@ -1492,24 +1492,42 @@ public final class AuthManager {
 				throw EAuthServerLogic.create("Error reading config.xml.");
 			}
 			
-			int pos1 = sFile.indexOf("<lockouttime>");
-			if(pos1 == -1){
-				throw EAuthServerLogic.create("config.xml does not contain &lt;lockouttime&gt; tag.");
+			
+			if(lockoutTime != null){
+				int pos1 = sFile.indexOf("<lockouttime>");
+				if(pos1 == -1){
+					throw EAuthServerLogic.create("config.xml does not contain &lt;lockouttime&gt; tag.");
+				}
+				
+				int pos2 = sFile.indexOf("</lockouttime>");
+				
+				String s = sFile.substring(pos1, pos2);
+				
+				sFile = sFile.replace(s, "<lockouttime>"+lockoutTime);
+				
+				LockoutManager.setLockoutTime(Integer.valueOf(lockoutTime));
 			}
 			
-			int pos2 = sFile.indexOf("</lockouttime>");
+			if(loginAttemptsAllowed != null){
+				int pos1 = sFile.indexOf("<loginattemptsallowed>");
+				if(pos1 == -1){
+					throw EAuthServerLogic.create("config.xml does not contain &lt;loginattemptsallowed&gt; tag.");
+				}
+				
+				int pos2 = sFile.indexOf("</loginattemptsallowed>");
+				
+				String s = sFile.substring(pos1, pos2);
+				
+				sFile = sFile.replace(s, "<loginattemptsallowed>"+loginAttemptsAllowed);
+				
+				LockoutManager.setLoginAttemptsAllowed(Integer.valueOf(loginAttemptsAllowed));
+			}
 			
-			String s = sFile.substring(pos1, pos2);
-			
-			sFile = sFile.replace(s, "<lockouttime>"+lockoutTime);
 			
 		    try(FileOutputStream fout = new FileOutputStream(configPath))
 		    {
 		    	fout.write(sFile.getBytes("UTF-8"));
 		    }
-			
-			
-			LockoutManager.setLockoutTime(Integer.valueOf(lockoutTime));
 			
 		} catch (Exception e) {
 			throw EAuthServerLogic.create(e);
@@ -1908,6 +1926,15 @@ public final class AuthManager {
 				void characters(String value) {
 					if (value != null) {
 						LockoutManager.setLockoutTime(Integer.valueOf(value));
+					}
+				}
+			});
+			
+			actions.put("loginattemptsallowed", new ParserAction() {
+				@Override
+				void characters(String value) {
+					if (value != null) {
+						LockoutManager.setLoginAttemptsAllowed(Integer.valueOf(value));
 					}
 				}
 			});
