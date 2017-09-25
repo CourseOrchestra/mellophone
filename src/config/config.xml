@@ -16,6 +16,9 @@
 	
 	
  	    <lockouttime>1</lockouttime>
+ 	    
+   	    <loginattemptsallowed>7</loginattemptsallowed>
+ 	    
 	    
 	    <setsettingstoken>43c42c2ee9210b0a77166a37f82bb4b6</setsettingstoken>
 	    

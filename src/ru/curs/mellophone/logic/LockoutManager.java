@@ -7,7 +7,10 @@ import java.util.HashMap;
  * несколько раз ввёл неверный пароль.
  */
 final class LockoutManager {
-	private static final int ATTEMPTS_ALLOWED = 5;
+	private static int loginAttemptsAllowed = 5;
+	public static void setLoginAttemptsAllowed(int loginAttemptsAllowed) {
+		LockoutManager.loginAttemptsAllowed = loginAttemptsAllowed;
+	}
 	
 	private static long lockoutTime = 10 * 60 * 1000;
 	public static void setLockoutTime(long lockoutTime) {
@@ -25,14 +28,14 @@ final class LockoutManager {
 
 		void fail() {
 			attemptsCount++;
-			if (attemptsCount >= ATTEMPTS_ALLOWED) {
+			if (attemptsCount >= loginAttemptsAllowed) {
 				lockoutUntil = System.currentTimeMillis() + lockoutTime;
 			}
 		}
 
 		boolean isLocked() {
 			// Ещё не навводил много неверных паролей.
-			if (attemptsCount < ATTEMPTS_ALLOWED)
+			if (attemptsCount < loginAttemptsAllowed)
 				return false;
 			// Навводил много неверных, и залочен.
 			if (System.currentTimeMillis() <= lockoutUntil)

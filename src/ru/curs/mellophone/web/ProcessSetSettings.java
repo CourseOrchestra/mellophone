@@ -28,8 +28,9 @@ public class ProcessSetSettings extends BaseProcessorServlet {
 			try {
 				String token = getRequestParam(request, "token");
 				String lockoutTime = getRequestParam(request, "lockouttime");
+				String loginAttemptsAllowed = getRequestParam(request, "loginattemptsallowed");
 				
-				AuthManager.getTheManager().setSettings(token, lockoutTime);
+				AuthManager.getTheManager().setSettings(token, lockoutTime, loginAttemptsAllowed);
 				response.setStatus(HttpServletResponse.SC_OK);
 			} catch (EAuthServerLogic e) {
 				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
