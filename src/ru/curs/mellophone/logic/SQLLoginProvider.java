@@ -288,6 +288,19 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 					}
 					
 
+				} else {
+					
+					if (procPostProcess != null) {
+						
+						PostProcessResult ppr = callProcPostProcess(((SQLLink) context).conn,
+								sesid, login, false, null, ip,
+								false, LockoutManager.getLockoutManager().getAttemptsCount(login)+1,
+								LockoutManager.getLockoutTime()*60);
+									
+						message = ppr.getMessage();
+						
+					}
+					
 				}
 			}
 		} catch (Exception e) {
