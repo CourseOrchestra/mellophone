@@ -436,7 +436,7 @@ final class LDAPLoginProvider extends AbstractLoginProvider {
 	}
 
 	@Override
-	void connect(String sSecurityPrincipal, String sSecurityCredentials,
+	void connect(String sesid, String sSecurityPrincipal, String sSecurityCredentials,
 			String ip, ProviderContextHolder ldapLink, PrintWriter pw)
 			throws EAuthServerLogic {
 

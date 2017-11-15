@@ -92,6 +92,12 @@ public final class AuthManager {
 	private int appsessionsInitialCapacity = 16;
 	private float appsessionsLoadFactor = (float) 0.75;
 	private int appsessionsConcurrencyLevel = 16;
+	
+	private boolean checkPasswordHashOnly = false;
+	
+	public boolean isCheckPasswordHashOnly() {
+		return checkPasswordHashOnly;
+	}
 
 	/**
 	 * Количество потоков, параллельно опрашивающих логин-провайдеры.
@@ -102,8 +108,9 @@ public final class AuthManager {
 	private Timer timerTimeout = null;
 
 	/** Залоченные (за повторное использование паролей) пользователи. */
-	private final LockoutManager lockouts = new LockoutManager();
-
+	private final LockoutManager lockouts = LockoutManager.getLockoutManager();
+	
+	private static ESIALoginProvider esiaLoginProvider = null;
 	
 	private String settingsToken = null;
 	
@@ -112,7 +119,8 @@ public final class AuthManager {
 	private String configPath = null;
 	
 	private boolean showTimeToUnlockUser = false;
-
+	
+	private SQLLoginProvider procPostProcessProvider = null;
 
 	private String initializationError = null;
 
@@ -129,11 +137,9 @@ public final class AuthManager {
 	 *            ServletContext
 	 */
 	public void productionModeDestroy(final ServletContext servletContext) {
-		
 		if (timerTimeout != null) {
 			timerTimeout.cancel();
 		}
-
 	}
 	
 
@@ -274,7 +280,7 @@ public final class AuthManager {
 		
 		if (lockouts.isLocked(login))
 		{
-			String s = getMessageUserIslockedOutForTooManyUnsuccessfulLoginAttempts(login);
+			String s = getMessageUserIslockedOutForTooManyUnsuccessfulLoginAttempts(null, login, ip);
 			
 			LOGGER.error(s);
 
@@ -331,7 +337,7 @@ public final class AuthManager {
 								.newContextHolder();
 						try {
 
-							curProvider.connect(login, password, ip, ch, pw);
+							curProvider.connect(null, login, password, ip, ch, pw);
 							
 							if ((!"SQLLoginProvider"
 									.equalsIgnoreCase(curProvider.getClass()
@@ -413,7 +419,7 @@ public final class AuthManager {
 		
 		if (lockouts.isLocked(login))
 		{
-			String s = getMessageUserIslockedOutForTooManyUnsuccessfulLoginAttempts(login);
+			String s = getMessageUserIslockedOutForTooManyUnsuccessfulLoginAttempts(null, login, ip);
 			
 			LOGGER.error(s);
 
@@ -470,7 +476,7 @@ public final class AuthManager {
 								.newContextHolder();
 						try {
 
-							curProvider.connect(login, password, ip, ch, null);
+							curProvider.connect(null, login, password, ip, ch, null);
 							
 							try {
 								XMLStreamWriter xw = XMLOutputFactory.newInstance()
@@ -626,12 +632,26 @@ public final class AuthManager {
 		
 	}
 	
-	private String getMessageUserIslockedOutForTooManyUnsuccessfulLoginAttempts(String login) {
-		String s = String.format(USER_IS_LOCKED_OUT_FOR_TOO_MANY_UNSUCCESSFUL_LOGIN_ATTEMPTS, login);
-		if(showTimeToUnlockUser){
-			s = s+" "+String.format(TIME_TO_UNLOCK, lockouts.getTimeToUnlock(login));
+	private String getMessageUserIslockedOutForTooManyUnsuccessfulLoginAttempts(final String sesid, 
+			final String login, final String ip) {
+		if (procPostProcessProvider	== null) {
+			String s = String.format(USER_IS_LOCKED_OUT_FOR_TOO_MANY_UNSUCCESSFUL_LOGIN_ATTEMPTS, login);
+			if(showTimeToUnlockUser){
+				s = s+" "+String.format(TIME_TO_UNLOCK, lockouts.getTimeToUnlock(login));
+			}
+			return s;
+		} else {
+			PostProcessResult ppr=null;
+			try {
+				ppr = procPostProcessProvider.callProcPostProcess(null,
+						sesid, login, false, null, ip,
+						true, LockoutManager.getLockoutManager().getAttemptsCount(login),
+						LockoutManager.getLockoutManager().getTimeToUnlock(login));
+			} catch (Exception e) {
+				return e.getMessage();
+			}
+			return ppr.getMessage();
 		}
-		return s;
 	}
 	
 	/**
@@ -658,7 +678,7 @@ public final class AuthManager {
 	 *             взаимодействии с LDAP произошла другая ошибка
 	 * 
 	 */
-	public String login(String sesid, final String groupProviders,
+	public String login(final String sesid, final String groupProviders,
 			final String login, final String password, final String ip)
 			throws EAuthServerLogic {
 
@@ -666,7 +686,7 @@ public final class AuthManager {
 		
 		if (lockouts.isLocked(login))
 		{
-			String s = getMessageUserIslockedOutForTooManyUnsuccessfulLoginAttempts(login); 
+			String s = getMessageUserIslockedOutForTooManyUnsuccessfulLoginAttempts(sesid, login, ip); 
 
 			LOGGER.error(s);
 
@@ -726,7 +746,7 @@ public final class AuthManager {
 							StringWriter sw = new StringWriter();
 							PrintWriter pw = new PrintWriter(sw);
 
-							curProvider.connect(login, password, ip, ch, pw);
+							curProvider.connect(sesid, login, password, ip, ch, pw);
 
 							if ((!"SQLLoginProvider"
 									.equalsIgnoreCase(curProvider.getClass()
@@ -799,11 +819,13 @@ public final class AuthManager {
 			}
 			lockouts.loginFail(login);
 			
-			if (lockouts.isLocked(login))
-			{
-				String s = getMessageUserIslockedOutForTooManyUnsuccessfulLoginAttempts(login); 
-				LOGGER.error(s);
-				resumeMessage.append(". " + s);
+			if(procPostProcessProvider == null){
+				if (lockouts.isLocked(login))
+				{
+					String s = getMessageUserIslockedOutForTooManyUnsuccessfulLoginAttempts(sesid, login, ip); 
+					LOGGER.error(s);
+					resumeMessage.append(". " + s);
+				}
 			}
 			
 			throw EAuthServerLogic
@@ -955,14 +977,12 @@ public final class AuthManager {
 
 		String authid = appsessions.get(sesid);
 		if (authid == null) {
-			throw EAuthServerLogic.create(String.format(SESID_NOT_AUTH, sesid
-					+ "__1"));
+			throw EAuthServerLogic.create(String.format(SESID_NOT_AUTH, sesid + "__1"));
 		}
 
 		AuthSession as = authsessions.get(authid);
 		if (as == null) {
-			throw EAuthServerLogic.create(String.format(SESID_NOT_AUTH, sesid
-					+ "__2"));
+			throw EAuthServerLogic.create(String.format(SESID_NOT_AUTH, sesid + "__2"));
 		}
 
 		if ((ip != null) && (as.getIp() != null)) {
@@ -979,6 +999,7 @@ public final class AuthManager {
 				&& (as.config != null)
 				&& (!"IASBPLoginProvider".equalsIgnoreCase(as.config.getClass()
 						.getSimpleName()))) {
+			
 			try {
 				ProviderContextHolder context = as.config.newContextHolder();
 				try {
@@ -986,7 +1007,7 @@ public final class AuthManager {
 							.getClass().getSimpleName()))
 							&& (!"SQLLoginProvider".equalsIgnoreCase(as.config
 									.getClass().getSimpleName()))) {
-						as.config.connect(as.getName(), as.getPwd(), null,
+						as.config.connect(sesid, as.getName(), as.getPwd(), null,
 								context, null);
 					}
 					as.config.getUserInfoByName(context, as.getName(), pw);
@@ -1046,8 +1067,7 @@ public final class AuthManager {
 						.getSimpleName()))
 						&& (!"SQLLoginProvider".equalsIgnoreCase(as.config
 								.getClass().getSimpleName()))) {
-					as.config.connect(as.getName(), as.getPwd(), null, context,
-							null);
+					as.config.connect(sesid, as.getName(), as.getPwd(), null, context,	null);
 				}
 				as.config.getUserInfoByName(context, name, pw);
 			} finally {
@@ -1094,13 +1114,14 @@ public final class AuthManager {
 			throw EAuthServerLogic.create(String.format(SESID_NOT_AUTH, sesid));
 
 		AuthSession as = authsessions.get(authid);
-		if (as == null)
+		if (as == null){
 			throw EAuthServerLogic.create(String.format(SESID_NOT_AUTH, sesid));
+		}
 
 		try {
 			ProviderContextHolder context = as.config.newContextHolder();
 			try {
-				as.config.connect(as.getName(), oldpwd, null, context, null);
+				as.config.connect(sesid, as.getName(), oldpwd, null, context, null);
 				as.config.changePwd(context, as.getName(), newpwd);
 			} finally {
 				context.closeContext();
@@ -1147,12 +1168,14 @@ public final class AuthManager {
 		String name = null;
 
 		String authid = appsessions.get(sesid);
-		if (authid == null)
+		if (authid == null){
 			throw EAuthServerLogic.create(String.format(SESID_NOT_AUTH, sesid));
+		}
 
 		AuthSession as = authsessions.get(authid);
-		if (as == null)
+		if (as == null){
 			throw EAuthServerLogic.create(String.format(SESID_NOT_AUTH, sesid));
+		}
 
 		try {
 			ProviderContextHolder context = as.config.newContextHolder();
@@ -1161,7 +1184,7 @@ public final class AuthManager {
 			if ("LDAPLoginProvider".equalsIgnoreCase(as.config.getClass().getSimpleName())) {
 			
 				try {
-					as.config.connect(as.getName(), as.getPwd(), null, context,
+					as.config.connect(sesid, as.getName(), as.getPwd(), null, context,
 							null);
 					as.config.changePwd(context, userName, newpwd);
 				} finally {
@@ -1176,11 +1199,9 @@ public final class AuthManager {
 				}
 			
 			}
-
 			name = as.getName();
 		} catch (Exception e) {
-			throw EAuthServerLogic.create(String.format(PROVIDER_ERROR,
-					e.getMessage()));
+			throw EAuthServerLogic.create(String.format(PROVIDER_ERROR,	e.getMessage()));
 		}
 
 		return name;
@@ -1211,9 +1232,7 @@ public final class AuthManager {
 				return "AUTH_OK";
 			}
 		}
-
 		return appsessions.get(sesid);
-
 	}
 
 	/**
@@ -1248,7 +1267,7 @@ public final class AuthManager {
 		try {
 			ProviderContextHolder context = as.config.newContextHolder();
 			try {
-				as.config.connect(as.getName(), as.getPwd(), null, context,
+				as.config.connect(sesid, as.getName(), as.getPwd(), null, context,
 						null);
 				as.config.importUsers(context, pw, true);
 			} finally {
@@ -1262,7 +1281,6 @@ public final class AuthManager {
 		}
 
 		return res;
-
 	}
 
 	/**
@@ -1433,6 +1451,48 @@ public final class AuthManager {
 
 	}
 	
+	
+	/**
+	 * Логинит ESIA пользователя  
+	 * 
+	 * @param sesid
+	 *            Идентификатор сессии.
+	 *            
+	 * @param login
+	 *            Логин пользователя
+            
+	 * @param userInfo
+	 *            Информация о пользователе
+	 *             
+	 * @param pw
+	 *            PrintWriter, в который выводится необходимая информация 
+	 *            
+	 * @throws EAuthServerLogic
+	 *             Если возникает ошибка
+	 * 
+	 */
+	public void loginESIAUser(String sesid, String login, String userInfo, PrintWriter pw)
+			throws EAuthServerLogic {
+		
+		if(esiaLoginProvider == null){
+			esiaLoginProvider = new ESIALoginProvider();
+			esiaLoginProvider.setType("esia");
+			esiaLoginProvider.setConnectionUrl("esia");
+			esiaLoginProvider.setupLogger(false);
+		}
+		 
+		SecureRandom r = new SecureRandom();
+		String authid = String.format("%016x", r.nextLong())
+				+ String.format("%016x", r.nextLong());
+
+			
+		authsessions.put(authid, new AuthSession(login, null, esiaLoginProvider, authid,
+				userInfo, null, null));
+			
+		appsessions.put(sesid, authid);
+		
+	}
+	
 	public void setSettings(String token, String lockoutTime, String loginAttemptsAllowed) throws EAuthServerLogic {
 		
 		if((settingsToken==null) || (token == null) || (!settingsToken.equals(token))){
@@ -1492,7 +1552,7 @@ public final class AuthManager {
 		}
 	}
 		
-
+	
 
 	/**
 	 * Аутентифицированная сессия. Содержит закэшированный (в оперативной
@@ -1714,7 +1774,7 @@ public final class AuthManager {
 					}
 				}
 			});
-			actions.put("proccheckuser", new ParserAction() {
+			actions.put("procpostprocess", new ParserAction() {
 				@Override
 				void characters(String value) {
 					if (loginProviders.size() > 0) {
@@ -1722,7 +1782,8 @@ public final class AuthManager {
 							value = null;
 						}
 						((SQLLoginProvider) loginProviders.getLast())
-								.setProcCheckUser(value);
+								.setProcPostProcess(value);
+						procPostProcessProvider	= (SQLLoginProvider) loginProviders.getLast();
 					}
 				}
 			});
@@ -1916,6 +1977,15 @@ public final class AuthManager {
 				void characters(String value) {
 					if (value != null) {
 						showTimeToUnlockUser = Boolean.valueOf(value);
+					}
+				}
+			});
+			
+			actions.put("checkpasswordhashonly", new ParserAction() {
+				@Override
+				void characters(String value) {
+					if (value != null) {
+						checkPasswordHashOnly = Boolean.valueOf(value);
 					}
 				}
 			});

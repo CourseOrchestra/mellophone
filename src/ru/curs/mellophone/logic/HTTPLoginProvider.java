@@ -73,7 +73,7 @@ final class HTTPLoginProvider extends AbstractLoginProvider {
 	}
 
 	@Override
-	void connect(String login, String password, String ip,
+	void connect(String sesid, String login, String password, String ip,
 			ProviderContextHolder context, PrintWriter pw)
 			throws EAuthServerLogic {
 

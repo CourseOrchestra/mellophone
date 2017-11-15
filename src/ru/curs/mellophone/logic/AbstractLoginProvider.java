@@ -92,6 +92,8 @@ abstract class AbstractLoginProvider {
 	/**
 	 * Устанавливает соединение с провайдером логинов.
 	 * 
+	 * @param sesid
+	 *            Идентификатор сессии приложения.
 	 * @param login
 	 *            Сообщеннный пользователем логин.
 	 * @param password
@@ -103,7 +105,7 @@ abstract class AbstractLoginProvider {
 	 * @throws EAuthServerLogic
 	 *             в случае, если соединение не удалось.
 	 */
-	abstract void connect(String login, String password, String ip,
+	abstract void connect(String sesid, String login, String password, String ip,
 			ProviderContextHolder context, PrintWriter pw)
 			throws EAuthServerLogic;
 

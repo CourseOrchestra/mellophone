@@ -250,7 +250,7 @@
                                     </xs:restriction>
                                 </xs:simpleType>
                             </xs:element>
-                            <xs:element minOccurs="0" name="proccheckuser">
+                            <xs:element minOccurs="0" name="procpostprocess">
                                 <xs:simpleType>
                                     <xs:restriction base="xs:string">
                                     </xs:restriction>

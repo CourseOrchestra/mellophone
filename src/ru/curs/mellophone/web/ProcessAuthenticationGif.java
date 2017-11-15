@@ -42,11 +42,9 @@ public class ProcessAuthenticationGif extends BaseProcessorServlet {
 			break;
 		}
 
-		ClassLoader classLoader = Thread.currentThread()
-				.getContextClassLoader();
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
-		BufferedImage buffer = ImageIO.read(classLoader
-				.getResourceAsStream(DIR_IMAGES + banner));
+		BufferedImage buffer = ImageIO.read(classLoader.getResourceAsStream(DIR_IMAGES + banner));
 
 		OutputStream os = response.getOutputStream();
 		ImageIO.write(buffer, IMAGE_EXT, os);
@@ -73,11 +71,11 @@ public class ProcessAuthenticationGif extends BaseProcessorServlet {
 					}
 				}
 			}
-			if (cookAuthsesid != null)
+			if (cookAuthsesid != null){
 				authsesid = cookAuthsesid.getValue();
+			}
 
-			authsesid = AuthManager.getTheManager().authenticationGif(sesid,
-					authsesid);
+			authsesid = AuthManager.getTheManager().authenticationGif(sesid, authsesid);
 
 			// if ("AUTH_OK".equals(authsesid)) //DEBUG!!!!!!!!!!
 			// authsesid = "ww1";
