@@ -1,9 +1,7 @@
 package ru.curs.mellophone.logic;
 
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -19,9 +17,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
-import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.slf4j.LoggerFactory;
@@ -55,8 +51,7 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 	private String fieldBlocked = null;
 	private String hashAlgorithm = "SHA-256";
 	private String localSecuritySalt = "";
-	private String procPostProcess	= null;
-	
+	private String procCheckUser = null;
 
 	private final HashMap<String, String> searchReturningAttributes = new HashMap<String, String>();
 
@@ -100,8 +95,8 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 		this.localSecuritySalt = localSecuritySalt;
 	}
 
-	void setProcPostProcess(String procPostProcess) {
-		this.procPostProcess = procPostProcess;
+	void setProcCheckUser(String procCheckUser) {
+		this.procCheckUser = procCheckUser;
 	}
 
 	@Override
@@ -216,7 +211,9 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 	}
 
 	@Override
-	void connect(String sesid, String login, String password, String ip, ProviderContextHolder context, PrintWriter pw) throws EAuthServerLogic {
+	void connect(String login, String password, String ip,
+			ProviderContextHolder context, PrintWriter pw)
+			throws EAuthServerLogic {
 
 		if (getLogger() != null) {
 			getLogger().debug("Url='" + getConnectionUrl() + "'");
@@ -234,20 +231,20 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 			((SQLLink) context).conn = getConnection();
 			
 			sql = String.format(
-					"SELECT \"%s\", %s FROM \"%s\" WHERE lower(\"%s\") = ?",
+					"SELECT \"%s\", %s FROM \"%s\" WHERE \"%s\" = ?",
 					fieldPassword, getSelectFields(), table, fieldLogin);
 
 			PreparedStatement stat = ((SQLLink) context).conn
 					.prepareStatement(sql);
 
-			stat.setString(1, login.toLowerCase());
+			stat.setString(1, login);
 
 			boolean hasResult = stat.execute();
 			if (hasResult) {
 				ResultSet rs = stat.getResultSet();
 				if (rs.next()) {
 					
-					if((procPostProcess == null) && (fieldBlocked != null)){
+					if(fieldBlocked != null){
 						if(rs.getBoolean(fieldBlocked)){
 							success = false;
 							message = String.format(USER_IS_BLOCKED_PERMANENTLY, login);
@@ -258,49 +255,60 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 					if(blt != BadLoginType.USER_BLOCKED_PERMANENTLY){
 						String pwdComplex = rs.getString(fieldPassword);
 						
-						success = (pwdComplex != null)
-								&& ((!AuthManager.getTheManager().isCheckPasswordHashOnly()) && pwdComplex.equals(password) || checkPasswordHash(pwdComplex, password));
-						
-						if (procPostProcess != null) {
+						if ((pwdComplex != null)
+								&& (pwdComplex.equals(password) || checkPasswordHash(pwdComplex, password))) {
 							
-							StringWriter sw = new StringWriter();
-							writeReturningAttributes (sw, rs);
-							sw.flush();
-							
-							PostProcessResult ppr = callProcPostProcess(((SQLLink) context).conn,
-									sesid, login, success, sw.toString(), ip,
-									false, LockoutManager.getLockoutManager().getAttemptsCount(login)+1,
-									LockoutManager.getLockoutTime()*60);
-							success = success && ppr.isSuccess();								
-							message = ppr.getMessage();
-							
-						} else {
-							if (success) {
-								message = USER_LOGIN + login + "' в '" + getConnectionUrl() + "' успешен!";								
-							}
-						}
+							if ((procCheckUser != null) && (ip != null)) {
+								CallableStatement cs = ((SQLLink) context).conn
+										.prepareCall(String.format(
+												"{? = call %s (?, ?, ?)}",
+												procCheckUser));
 
+								cs.registerOutParameter(1, java.sql.Types.INTEGER);
+								cs.setString(2, login);
+								cs.setString(3, ip);
+								cs.registerOutParameter(4, java.sql.Types.VARCHAR);
+
+								cs.execute();
+								int errorCode = cs.getInt(1);
+								if (errorCode == 0) {
+									success = true;
+									message = USER_LOGIN + login + "' в '"
+											+ getConnectionUrl() + "' успешен!";
+								} else {
+									success = false;
+									message = cs.getString(4);
+									blt = BadLoginType.BAD_PROC_CHECK_USER;
+								}
+							} else {
+								success = true;
+								message = USER_LOGIN + login + "' в '"
+										+ getConnectionUrl() + "' успешен!";
+							}
+
+						}
 
 						if (success && (pw != null)) {
-							writeReturningAttributes (pw, rs);
+
+							String[] attrs = searchReturningAttributes.keySet()
+									.toArray(new String[0]);
+							XMLStreamWriter xw = XMLOutputFactory.newInstance()
+									.createXMLStreamWriter(pw);
+
+							xw.writeStartDocument("utf-8", "1.0");
+							xw.writeEmptyElement("user");
+							for (String attr : attrs) {
+								writeXMLAttr(xw, attr,
+										rs.getString(searchReturningAttributes
+												.get(attr)));
+							}
+							xw.writeEndDocument();
+							xw.flush();
+
 						}
-						
 					}
 					
 
-				} else {
-					
-					if (procPostProcess != null) {
-						
-						PostProcessResult ppr = callProcPostProcess(((SQLLink) context).conn,
-								sesid, login, false, null, ip,
-								false, LockoutManager.getLockoutManager().getAttemptsCount(login)+1,
-								LockoutManager.getLockoutTime()*60);
-									
-						message = ppr.getMessage();
-						
-					}
-					
 				}
 			}
 		} catch (Exception e) {
@@ -327,50 +335,6 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 			throw eas;
 		}
 
-	}
-	
-	private void writeReturningAttributes (Writer writer, ResultSet rs) throws XMLStreamException, FactoryConfigurationError, SQLException{
-		String[] attrs = searchReturningAttributes.keySet()
-				.toArray(new String[0]);
-		XMLStreamWriter xw = XMLOutputFactory.newInstance()
-				.createXMLStreamWriter(writer);
-
-		xw.writeStartDocument("utf-8", "1.0");
-		xw.writeEmptyElement("user");
-		for (String attr : attrs) {
-			writeXMLAttr(xw, attr,
-					rs.getString(searchReturningAttributes
-							.get(attr)));
-		}
-		xw.writeEndDocument();
-		xw.flush();
-	}
-	
-	public PostProcessResult callProcPostProcess(Connection conn, String sesid, String login,
-			boolean isauth, String attributes, String ip, 
-			boolean islocked, int attemptsCount, long timeToUnlock) throws SQLException  {
-		
-		if(conn == null){
-			conn = getConnection();	
-		}
-		
-		CallableStatement cs = conn.prepareCall(String.format("{? = call %s (?, ?, ?, ?, ?, ?, ?, ?, ?)}", procPostProcess));
-
-		cs.registerOutParameter(1, java.sql.Types.INTEGER);
-		cs.setString(2, sesid);
-		cs.setString(3, login);
-		cs.setBoolean(4, isauth);
-		cs.setString(5, attributes);
-		cs.setString(6, ip);
-		cs.setBoolean(7, islocked);
-		cs.setInt(8, attemptsCount);
-		cs.setLong(9, timeToUnlock);
-		cs.registerOutParameter(10, java.sql.Types.VARCHAR);
-
-		cs.execute();
-		
-		return new PostProcessResult(cs.getInt(1)==0, "Stored procedure message begin: " + cs.getString(10) + " Stored procedure message end.");
-		
 	}
 	
 	private boolean checkPasswordHash(String pwdComplex, String password) throws UnsupportedEncodingException, EAuthServerLogic {
@@ -438,11 +402,11 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 		try {
 			((SQLLink) context).conn = getConnection();
 
-			sql = String.format("SELECT %s FROM \"%s\" WHERE lower(\"%s\") = ?",
+			sql = String.format("SELECT %s FROM \"%s\" WHERE \"%s\" = ?",
 					getSelectFields(), table, fieldLogin);
 			PreparedStatement stat = ((SQLLink) context).conn
 					.prepareStatement(sql);
-			stat.setString(1, name.toLowerCase());
+			stat.setString(1, name);
 
 			boolean hasResult = stat.execute();
 			if (hasResult) {
@@ -491,13 +455,9 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 		if (getLogger() != null) {
 			getLogger().debug("Url='" + getConnectionUrl() + "'");
 		}
-		
+
 		String sql = "";
 		try {
-			if(((SQLLink) context).conn == null){
-				((SQLLink) context).conn = getConnection();	
-			}
-			
 			sql = String.format("SELECT %s FROM \"%s\" ORDER BY \"%s\"",
 					getSelectFields(), table, fieldLogin);
 

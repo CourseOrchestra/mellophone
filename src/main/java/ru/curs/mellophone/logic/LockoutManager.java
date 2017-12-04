@@ -7,31 +7,12 @@ import java.util.HashMap;
  * несколько раз ввёл неверный пароль.
  */
 final class LockoutManager {
-	private static LockoutManager theMANAGER;
-	
-	/**
-	 * Возвращает единственный экземпляр (синглетон) менеджера локаута пользователей.
-	 */
-	public static LockoutManager getLockoutManager() {
-		if (theMANAGER == null) {
-			theMANAGER = new LockoutManager();
-		}
-		return theMANAGER;
-	}
-	
-	private static int loginAttemptsAllowed = 5;
-	public static void setLoginAttemptsAllowed(int loginAttemptsAllowed) {
-		LockoutManager.loginAttemptsAllowed = loginAttemptsAllowed;
-	}
+	private static final int ATTEMPTS_ALLOWED = 5;
 	
 	private static long lockoutTime = 10 * 60 * 1000;
 	public static void setLockoutTime(long lockoutTime) {
 		LockoutManager.lockoutTime = lockoutTime * 60 * 1000;
 	}
-	public static long getLockoutTime() {
-		return LockoutManager.lockoutTime / 60 / 1000;
-	}
-	
 
 	private final HashMap<String, LoginCounter> lockouts = new HashMap<String, LoginCounter>();
 
@@ -44,14 +25,14 @@ final class LockoutManager {
 
 		void fail() {
 			attemptsCount++;
-			if (attemptsCount >= loginAttemptsAllowed) {
+			if (attemptsCount >= ATTEMPTS_ALLOWED) {
 				lockoutUntil = System.currentTimeMillis() + lockoutTime;
 			}
 		}
 
 		boolean isLocked() {
 			// Ещё не навводил много неверных паролей.
-			if (attemptsCount < loginAttemptsAllowed)
+			if (attemptsCount < ATTEMPTS_ALLOWED)
 				return false;
 			// Навводил много неверных, и залочен.
 			if (System.currentTimeMillis() <= lockoutUntil)
@@ -59,10 +40,6 @@ final class LockoutManager {
 			// Пора разлочить.
 			attemptsCount = 0;
 			return false;
-		}
-		
-		int getAttemptsCount() {
-			return attemptsCount;
 		}
 		
 		long getTimeToUnlock() {
@@ -80,19 +57,6 @@ final class LockoutManager {
 		LoginCounter lc = lockouts.get(login);
 		return lc == null ? false : lc.isLocked();
 	}
-	
-
-	/**
-	 * Возвращает количество неудачных попыток логина пользователя.
-	 * 
-	 * @param login
-	 *            логин пользователя.
-	 */
-    public synchronized int getAttemptsCount(String login) {
-		LoginCounter lc = lockouts.get(login);
-		return lc == null ? 0 : lc.getAttemptsCount();
-	}
-	
 	
 	/**
 	 * Возвращает время (в секундах) до разблокировки пользователя.

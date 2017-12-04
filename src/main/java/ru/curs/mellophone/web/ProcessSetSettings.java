@@ -1,7 +1,6 @@
 package ru.curs.mellophone.web;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -11,9 +10,9 @@ import ru.curs.mellophone.logic.AuthManager;
 import ru.curs.mellophone.logic.EAuthServerLogic;
 
 /**
- * Servlet implementation /getuserlist?login=...&pwd=...
+ * Servlet implementation /setsettings?token=...&lockouttime=...
  */
-public class ProcessGetUserList extends BaseProcessorServlet {
+public class ProcessSetSettings extends BaseProcessorServlet {
 	private static final long serialVersionUID = 4394356614469305852L;
 
 	@Override
@@ -28,25 +27,10 @@ public class ProcessGetUserList extends BaseProcessorServlet {
 		try {
 			try {
 				String token = getRequestParam(request, "token");
-				String pid = getRequestParam(request, "pid");				
+				String lockoutTime = getRequestParam(request, "lockouttime");
 				
-				String gp = getRequestParam(request, "gp");
-				if (gp == null) {
-					gp = AuthManager.GROUP_PROVIDERS_ALL;
-				}
-				if (AuthManager.GROUP_PROVIDERS_NOT_DEFINE.equalsIgnoreCase(gp)) {
-					gp = "";
-				}
-
-				String ip = getRequestParam(request, "ip");
-				if ((ip != null) && ip.isEmpty()) {
-					ip = null;
-				}
-				
-				PrintWriter pw = response.getWriter();
-				AuthManager.getTheManager().getUserList(pid, gp, token, ip, pw);
+				AuthManager.getTheManager().setSettings(token, lockoutTime);
 				response.setStatus(HttpServletResponse.SC_OK);
-				pw.flush();
 			} catch (EAuthServerLogic e) {
 				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 				response.getWriter().append(e.getMessage()).flush();
