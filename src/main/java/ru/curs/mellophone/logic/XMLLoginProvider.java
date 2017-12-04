@@ -53,7 +53,7 @@ final class XMLLoginProvider extends AbstractLoginProvider {
 	}
 
 	@Override
-	void connect(final String login, final String password, String ip,
+	void connect(String sesid, final String login, final String password, String ip,
 			final ProviderContextHolder ldapLink, PrintWriter pw)
 			throws EAuthServerLogic {
 
@@ -67,7 +67,7 @@ final class XMLLoginProvider extends AbstractLoginProvider {
 					try {
 						if ((lgn != null)
 								&& (pwd != null)
-								&& lgn.equals(login)
+								&& lgn.equalsIgnoreCase(login)
 								&& (pwd.equals(password) || pwd
 										.equals(getHash(password)))) {
 							try {
@@ -167,7 +167,7 @@ final class XMLLoginProvider extends AbstractLoginProvider {
 			@Override
 			public void startElement(String uri, String localName,
 					String prefixedName, Attributes atts) throws SAXException {
-				if (USER.equals(localName) && name.equals(atts.getValue(LOGIN))) {
+				if (USER.equals(localName) && name.equalsIgnoreCase(atts.getValue(LOGIN))) {
 					try {
 						if (getLogger() != null) {
 							getLogger().debug(
@@ -237,6 +237,11 @@ final class XMLLoginProvider extends AbstractLoginProvider {
 		};
 
 		try {
+			
+			if(((XMLLink) ldapLink).inXML == null){
+				((XMLLink) ldapLink).inXML = getXMLstream();	
+			}
+			
 			if(needStartDocument){
 				xw.writeStartDocument("utf-8", "1.0");					
 			}

@@ -17,7 +17,7 @@ final class ESIALoginProvider extends AbstractLoginProvider {
 	}
 
 	@Override
-	void connect(final String login, final String password, String ip,
+	void connect(String sesid, final String login, final String password, String ip,
 			final ProviderContextHolder ldapLink, PrintWriter pw)
 			throws EAuthServerLogic {
 	}

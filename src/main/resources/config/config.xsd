@@ -15,8 +15,11 @@
                             <xs:element minOccurs="0" name="authsessions" />
                             <xs:element minOccurs="0" name="appsessions" />
                             <xs:element minOccurs="0" name="lockouttime" />
+                            <xs:element minOccurs="0" name="loginattemptsallowed" />
                             <xs:element minOccurs="0" name="setsettingstoken" />
+                            <xs:element minOccurs="0" name="getuserlisttoken" />
                             <xs:element minOccurs="0" name="showtimetounlockuser" />
+                            <xs:element minOccurs="0" name="checkpasswordhashonly" />
                         </xs:sequence>                            
                     </xs:complexType>
                 </xs:element>
@@ -247,7 +250,7 @@
                                     </xs:restriction>
                                 </xs:simpleType>
                             </xs:element>
-                            <xs:element minOccurs="0" name="proccheckuser">
+                            <xs:element minOccurs="0" name="procpostprocess">
                                 <xs:simpleType>
                                     <xs:restriction base="xs:string">
                                     </xs:restriction>

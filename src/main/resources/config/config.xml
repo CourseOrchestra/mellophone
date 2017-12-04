@@ -16,27 +16,36 @@
 	
 	
  	    <lockouttime>1</lockouttime>
+ 	    
+   	    <loginattemptsallowed>5</loginattemptsallowed>
+ 	    
 	    
 	    <setsettingstoken>43c42c2ee9210b0a77166a37f82bb4b6</setsettingstoken>
 	    
-	    <showtimetounlockuser>true</showtimetounlockuser>	    
+	    <getuserlisttoken>9ed41e1e40ff47208d8e0943b918a554</getuserlisttoken>
+	    
+	    <showtimetounlockuser>true</showtimetounlockuser>
+	    
+	    	    
+   	    <checkpasswordhashonly>false</checkpasswordhashonly>
 
 		
 	</common>
 	
 	
 <!--
--->
+
 	
 	<xmlfile>
 	    <id>test2</id>	
 		<logging>true</logging>
 		<url>
-		D:/workspace/mellophone-maven/src/main/resources/config/samples/users.xml
+		D:/workspace8/mellophone/WebContent/WEB-INF/classes/config/samples/users.xml
 		</url>
 		<trusteduser>Иванов1</trusteduser>
 	</xmlfile>
-	
+
+-->
 
 
 <!--
@@ -58,7 +67,10 @@
 		<trusteduser>Иванов1</trusteduser>
 		<trusteduser>Петров1</trusteduser>
 		
-		<proccheckuser>checkUserIP</proccheckuser>
+		
+		<procpostprocess>postProcess</procpostprocess>
+		
+		
 		<searchreturningattributes
 		  SID="Поле objectSid"		
 		  login="Логин" 
@@ -74,6 +86,7 @@
 
 
 <!--
+
 
 	<sqlserver>
 		<logging>true</logging>
@@ -94,8 +107,8 @@
 		  fax = "Поле fax"	  
 		/>
 	</sqlserver>
--->
 
+-->
 
 
 

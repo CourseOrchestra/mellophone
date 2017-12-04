@@ -27,8 +27,7 @@ public class ProcessGetUserList extends BaseProcessorServlet {
 		response.setCharacterEncoding("UTF-8");
 		try {
 			try {
-				String login = getRequestParam(request, "login");
-				String pwd = getRequestParam(request, "pwd");
+				String token = getRequestParam(request, "token");
 				String pid = getRequestParam(request, "pid");				
 				
 				String gp = getRequestParam(request, "gp");
@@ -45,7 +44,7 @@ public class ProcessGetUserList extends BaseProcessorServlet {
 				}
 				
 				PrintWriter pw = response.getWriter();
-				AuthManager.getTheManager().getUserList(pid, gp, login, pwd, ip, pw);
+				AuthManager.getTheManager().getUserList(pid, gp, token, ip, pw);
 				response.setStatus(HttpServletResponse.SC_OK);
 				pw.flush();
 			} catch (EAuthServerLogic e) {
