@@ -4,33 +4,11 @@
 	<groupId>ru.curs</groupId>
 	<artifactId>mellophone</artifactId>
 	<packaging>war</packaging>
-	<version>6.1</version>
+	<version>6.1-SNAPSHOT</version>
 	<name>mellophone</name>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
-
-	<distributionManagement>
-		<repository>
-			<id>curs</id>
-			<url>http://nexus.curs.ru:8081/repository/curs</url>
-		</repository>
-	</distributionManagement>
-
-	<repositories>
-		<repository>
-			<id>lib</id>
-			<name>lib</name>
-			<releases>
-				<enabled>true</enabled>
-				<checksumPolicy>ignore</checksumPolicy>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-			<url>http://nexus.curs.ru:8081/repository/curs</url>
-		</repository>
-	</repositories>
 
 	<dependencies>
 
@@ -75,7 +53,7 @@
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
-			<version>RELEASE</version>
+			<version>20171018</version>
 			<scope>compile</scope>
 		</dependency>
 
@@ -111,19 +89,19 @@
 
 		<dependency>
 			<groupId>com.microsoft.sqlserver</groupId>
-			<artifactId>sqljdbc4</artifactId>
-			<version>4.0</version>
+			<artifactId>mssql-jdbc</artifactId>
+			<version>6.2.2.jre8</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.oracle.jdbc</groupId>
-			<artifactId>ojdbc7</artifactId>
-			<version>12.1.0.2</version>
+			<artifactId>ojdbc8</artifactId>
+			<version>12.2.0.1</version> 
 		</dependency>
-
+		
 	</dependencies>
+	
 	<build>
-		<finalName>${project.artifactId}-${project.version}.${revision.number}_build${build.number}</finalName>
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
@@ -156,7 +134,6 @@
 							<goal>single</goal>
 						</goals>
 						<configuration>
-							<finalName>config-${project.version}.${revision.number}_build${build.number}</finalName>
 							<appendAssemblyId>false</appendAssemblyId>
 							<descriptors>
 								<descriptor>src/assembly/config_bin.xml</descriptor>
