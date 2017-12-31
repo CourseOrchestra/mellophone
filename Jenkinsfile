@@ -20,7 +20,8 @@ node {
             rtMaven.run pom: 'pom.xml', goals: '-U clean install -Dmaven.test.skip=true', buildInfo: buildInfo
         }
     } finally {
-        junit 'target/surefire-reports/**/*.xml'
+        // TODO: uncomment when test reports are ready
+        //junit 'target/surefire-reports/**/*.xml'
     }
 
     stage ('Publish build info') {
