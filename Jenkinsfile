@@ -17,7 +17,7 @@ node {
 
     try{
         stage ('Exec Maven') {
-            rtMaven.run pom: 'pom.xml', goals: '-U clean install -Dmaven.test.skip=true', buildInfo: buildInfo
+            rtMaven.run pom: 'pom.xml', goals: 'clean install -Dmaven.test.skip=true', buildInfo: buildInfo
         }
     } finally {
         // TODO: uncomment when test reports are ready
