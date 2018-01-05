@@ -158,7 +158,7 @@
 							<descriptors>
 								<descriptor>src/assembly/config_bin.xml</descriptor>
 							</descriptors>
-							<attach>false</attach>
+							<attach>true</attach>
 						</configuration>
 					</execution>
 				</executions>
