@@ -2,6 +2,7 @@ package ru.curs.mellophone.logic;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -79,6 +80,10 @@ public final class AuthManager {
 
 	/** Список зарегистрированных провайдеров. */
 	private final LinkedList<AbstractLoginProvider> loginProviders = new LinkedList<AbstractLoginProvider>();
+
+	public LinkedList<AbstractLoginProvider> getLoginProviders() {
+		return loginProviders;
+	}
 
 	/** Список сессий аутентификации. */
 	private ConcurrentHashMap<String, AuthSession> authsessions;
@@ -222,14 +227,18 @@ public final class AuthManager {
 	 *             исключение
 	 */
 	public void testModeInitialize() throws EAuthServerLogic {
-		ClassLoader classLoader = Thread.currentThread()
-				.getContextClassLoader();
-		InputStream is = classLoader
-				.getResourceAsStream("ru/curs/mellophone/test/config_test.xml");
+		//ClassLoader classLoader = Thread.currentThread()
+			//	.getContextClassLoader();
+		//InputStream is = classLoader
+			//	.getResourceAsStream("src/test/java/ru/curs/mellophone/test/config_test.xml");
 
+		
 		// Читаем все настройки из XML...
 		ConfigParser p = new ConfigParser();
 		try {
+			File configTestFile = new File("src/test/java/ru/curs/mellophone/test/config_test.xml");
+			InputStream is = new FileInputStream(configTestFile);
+			
 			SaxonTransformerFactory.newInstance().newTransformer()
 					.transform(new StreamSource(is), new SAXResult(p));
 		} catch (Exception e) {

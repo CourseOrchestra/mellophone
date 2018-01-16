@@ -8,10 +8,13 @@
 	в users.xml без перезагрузки Томката)) 
 -->
 	<xmlfile>
+		<group_providers>group_providers</group_providers>	
 		<logging>false</logging>
-		<url>D:/workspace/AuthServer/src/config/samples/users.xml</url>
+		<url>src/test/java/ru/curs/mellophone/test/users.xml</url>
 	</xmlfile>
-	
+
+
+<!--	
 	<ldapserver>
 		<logging>false</logging>
 		<servertype>ApacheDS</servertype>		
@@ -92,7 +95,7 @@
 		  fax = "Поле fax"	  
 		/>
 	</sqlserver>
-	
+-->	
 </config>
 
 

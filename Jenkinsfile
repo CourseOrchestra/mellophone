@@ -17,11 +17,10 @@ node {
 
     try{
         stage ('Exec Maven') {
-            rtMaven.run pom: 'pom.xml', goals: 'clean install -Dmaven.test.skip=true', buildInfo: buildInfo
+            rtMaven.run pom: 'pom.xml', goals: 'clean install', buildInfo: buildInfo
         }
     } finally {
-        // TODO: uncomment when test reports are ready
-        //junit 'target/surefire-reports/**/*.xml'
+        junit 'target/surefire-reports/**/*.xml'
     }
 
     stage ('Publish build info') {

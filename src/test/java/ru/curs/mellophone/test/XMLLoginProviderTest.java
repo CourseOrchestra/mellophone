@@ -1,8 +1,14 @@
 package ru.curs.mellophone.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 
+import ru.curs.mellophone.logic.AuthManager;
+import ru.curs.mellophone.logic.XMLLoginProvider;
 import ru.curs.mellophone.logic.EAuthServerLogic;
+
 
 /**
  * Тесты XMLLoginProvider.
@@ -11,26 +17,69 @@ public class XMLLoginProviderTest extends BaseTestLoginProvider {
 
 	private static final String LOGIN = "Петров";
 	private static final String PASSWORD = "пасс2";
+	private static final String BAD_PASSWORD = "пасс22";	
 
 	private static final String CHECKNAME_EXISTS = "Сидоров";
 	private static final String CHECKNAME_NOT_EXISTS = "Сидоров22";
-
+	
+	
 	/**
-	 * Тест ф-ции login.
+	 * Тест успешной загрузки XMLLoginProvider'а.
 	 * 
 	 * @throws EAuthServerLogic
 	 *             EAuthServerLogic
 	 */
 	@Test
-	public void testLogin() throws EAuthServerLogic {
+	public void testXMLLoginProviderIsLoaded() throws EAuthServerLogic {
+		int count = 0;
+		for (int i = 0; i < AuthManager.getTheManager().getLoginProviders().size(); i++) {
+			if(AuthManager.getTheManager().getLoginProviders().get(0) instanceof XMLLoginProvider){
+				count++;				
+			}
+		}
+		assertEquals(1, count);
+	}
+	
+	
+
+	/**
+	 * Тест ф-ции login (успешный логин).
+	 * 
+	 * @throws EAuthServerLogic
+	 *             EAuthServerLogic
+	 */
+	@Test
+	public void testLogin1() throws EAuthServerLogic {
 		setLogin(LOGIN);
 		setPassword(PASSWORD);
 
 		login();
 	}
+	
+	
+	
+	/**
+	 * Тест ф-ции login (неуспешный логин).
+	 * 
+	 * @throws EAuthServerLogic
+	 *             EAuthServerLogic
+	 */
+	@Test
+	public void testLogin2() throws EAuthServerLogic {
+		setLogin(LOGIN);
+		setPassword(BAD_PASSWORD);
+
+		try {
+			login();	
+		} catch (EAuthServerLogic e) {
+			assertTrue(e.getMessage().indexOf("Неправильная пара логин/пароль") > 0);
+		}
+	}
+	
+	
 
 	/**
-	 * Тест1 ф-ции isAuthenticated.
+	 * Тест1 ф-ции isAuthenticated (аутентифицированная сессия).
 	 * 
 	 * @throws EAuthServerLogic
 	 *             EAuthServerLogic
@@ -44,7 +93,7 @@ public class XMLLoginProviderTest extends BaseTestLoginProvider {
 	}
 
 	/**
-	 * Тест2 ф-ции isAuthenticated.
+	 * Тест2 ф-ции isAuthenticated (не аутентифицированная сессия).
 	 * 
 	 */
 	@Test
@@ -67,7 +116,7 @@ public class XMLLoginProviderTest extends BaseTestLoginProvider {
 	}
 
 	/**
-	 * Тест1 ф-ции checkName.
+	 * Тест1 ф-ции checkName (имя пользователя существует).
 	 * 
 	 * @throws EAuthServerLogic
 	 *             EAuthServerLogic
@@ -82,7 +131,7 @@ public class XMLLoginProviderTest extends BaseTestLoginProvider {
 	}
 
 	/**
-	 * Тест2 ф-ции checkName.
+	 * Тест2 ф-ции checkName (имя пользователя не существует).
 	 * 
 	 * @throws EAuthServerLogic
 	 *             EAuthServerLogic
