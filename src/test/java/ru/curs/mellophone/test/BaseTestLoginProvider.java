@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 
 import ru.curs.mellophone.logic.AuthManager;
 import ru.curs.mellophone.logic.EAuthServerLogic;
@@ -58,15 +59,22 @@ public class BaseTestLoginProvider {
 	}
 
 	/**
-	 * Перед началом logout.
+	 * Перед началом выполнения всех тестов.
 	 */
-	@Before
-	public void beforeTest() {
+	@BeforeClass
+	public static void beforeClass() {
 		try {
 			AuthManager.getTheManager().testModeInitialize();
 		} catch (EAuthServerLogic e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Перед началом выполнения каждого теста.
+	 */
+	@Before
+	public void beforeTest() {
 		AuthManager.getTheManager().logout(SES_ID);
 	}
 

@@ -82,6 +82,7 @@ public class ProcessTest extends BaseProcessorServlet {
 
 			response.setStatus(HttpServletResponse.SC_OK);
 			pw.flush();
+			pw.close();
 		} catch (EAuthServerLogic e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

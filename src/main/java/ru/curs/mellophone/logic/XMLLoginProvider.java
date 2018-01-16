@@ -26,7 +26,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * Конфигурация подключения к XML-файлу.
  * 
  */
-final class XMLLoginProvider extends AbstractLoginProvider {
+public final class XMLLoginProvider extends AbstractLoginProvider {
 
 	private static final String LOGIN = "login";
 	private static final String USER = "user";

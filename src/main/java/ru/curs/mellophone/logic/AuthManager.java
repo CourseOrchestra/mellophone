@@ -80,6 +80,10 @@ public final class AuthManager {
 	/** Список зарегистрированных провайдеров. */
 	private final LinkedList<AbstractLoginProvider> loginProviders = new LinkedList<AbstractLoginProvider>();
 
+	public LinkedList<AbstractLoginProvider> getLoginProviders() {
+		return loginProviders;
+	}
+
 	/** Список сессий аутентификации. */
 	private ConcurrentHashMap<String, AuthSession> authsessions;
 	/** Привязка сессий приложений к сессиям аутентификации. */

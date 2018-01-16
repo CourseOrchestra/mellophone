@@ -34,22 +34,22 @@
 	
 	
 <!--
-
+-->
 	
 	<xmlfile>
 	    <id>test2</id>	
 		<logging>true</logging>
 		<url>
-		D:/workspace8/mellophone/WebContent/WEB-INF/classes/config/samples/users.xml
+		D:/git/mellophone/src/main/resources/config/samples/users.xml
 		</url>
 		<trusteduser>Иванов1</trusteduser>
 	</xmlfile>
 
--->
+
 
 
 <!--
--->
+
 
 	<sqlserver>
 	    <id>test</id>
@@ -82,6 +82,7 @@
 		/>
 	</sqlserver>
 	
+-->	
 	
 
 
