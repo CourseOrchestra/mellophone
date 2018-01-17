@@ -86,7 +86,7 @@ public class BaseTestLoginProvider {
 	 */
 	protected void login() throws EAuthServerLogic {
 		String authsesid = AuthManager.getTheManager().login(SES_ID,
-				"group_providers", login, password, null);
+				"all", login, password, null);
 		assertNotNull(authsesid);
 	}
 
@@ -98,7 +98,7 @@ public class BaseTestLoginProvider {
 	 */
 	protected void isAuthenticated1() throws EAuthServerLogic {
 		String authsesid = AuthManager.getTheManager().login(SES_ID,
-				"group_providers", login, password, null);
+				"all", login, password, null);
 		assertNotNull(authsesid);
 
 		StringWriter sw = new StringWriter();
@@ -129,7 +129,7 @@ public class BaseTestLoginProvider {
 	 */
 	protected void logout() throws EAuthServerLogic {
 		String authsesid = AuthManager.getTheManager().login(SES_ID,
-				"group_providers", login, password, null);
+				"all", login, password, null);
 		assertNotNull(authsesid);
 
 		StringWriter sw = new StringWriter();
@@ -154,7 +154,7 @@ public class BaseTestLoginProvider {
 	 */
 	protected void checkName1() throws EAuthServerLogic {
 		String authsesid = AuthManager.getTheManager().login(SES_ID,
-				"group_providers", login, password, null);
+				"all", login, password, null);
 		assertNotNull(authsesid);
 
 		StringWriter sw = new StringWriter();
@@ -171,7 +171,7 @@ public class BaseTestLoginProvider {
 	 */
 	protected void checkName2() throws EAuthServerLogic {
 		String authsesid = AuthManager.getTheManager().login(SES_ID,
-				"group_providers", login, password, null);
+				"all", login, password, null);
 		assertNotNull(authsesid);
 
 		StringWriter sw = new StringWriter();
@@ -188,7 +188,7 @@ public class BaseTestLoginProvider {
 	 */
 	protected void authenticationGif1() throws EAuthServerLogic {
 		String authsesid = AuthManager.getTheManager().login(SES_ID,
-				"group_providers", login, password, null);
+				"all", login, password, null);
 		assertNotNull(authsesid);
 
 		String s = AuthManager.getTheManager().authenticationGif("", authsesid);
@@ -203,7 +203,7 @@ public class BaseTestLoginProvider {
 	 */
 	protected void authenticationGif2() throws EAuthServerLogic {
 		String authsesid = AuthManager.getTheManager().login(SES_ID,
-				"group_providers", login, password, null);
+				"all", login, password, null);
 		assertNotNull(authsesid);
 
 		String s = AuthManager.getTheManager().authenticationGif(SES_ID, "");
@@ -229,7 +229,7 @@ public class BaseTestLoginProvider {
 	 */
 	protected void importUsers() throws EAuthServerLogic {
 		String authsesid = AuthManager.getTheManager().login(SES_ID,
-				"group_providers", login, password, null);
+				"all", login, password, null);
 		assertNotNull(authsesid);
 
 		StringWriter sw = new StringWriter();

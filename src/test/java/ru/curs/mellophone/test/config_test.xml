@@ -8,7 +8,6 @@
 	в users.xml без перезагрузки Томката)) 
 -->
 	<xmlfile>
-		<group_providers>group_providers</group_providers>	
 		<logging>false</logging>
 		<url>src/test/java/ru/curs/mellophone/test/users.xml</url>
 	</xmlfile>
