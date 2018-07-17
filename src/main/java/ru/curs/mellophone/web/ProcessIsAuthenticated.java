@@ -30,7 +30,7 @@ public class ProcessIsAuthenticated extends BaseProcessorServlet {
 		response.reset();
 		setHeaderNoCache(response);
 
-		response.setContentType("text/html");
+		response.setContentType("application/xml");
 		response.setCharacterEncoding("UTF-8");
 
 		try {
