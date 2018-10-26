@@ -1,15 +1,10 @@
 package ru.curs.mellophone.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.*;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-
-import org.junit.Before;
-import org.junit.BeforeClass;
 
 import ru.curs.mellophone.logic.AuthManager;
 import ru.curs.mellophone.logic.EAuthServerLogic;
@@ -61,7 +56,7 @@ public class BaseTestLoginProvider {
 	/**
 	 * Перед началом выполнения всех тестов.
 	 */
-	@BeforeClass
+	@BeforeAll
 	public static void beforeClass() {
 		try {
 			AuthManager.getTheManager().testModeInitialize();
@@ -73,7 +68,7 @@ public class BaseTestLoginProvider {
 	/**
 	 * Перед началом выполнения каждого теста.
 	 */
-	@Before
+	@BeforeEach
 	public void beforeTest() {
 		AuthManager.getTheManager().logout(SES_ID);
 	}
