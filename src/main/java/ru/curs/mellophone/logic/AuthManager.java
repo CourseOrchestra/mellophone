@@ -117,7 +117,6 @@ public final class AuthManager {
     private String getuserlistToken = null;
 
     private String configPath = null;
-    private String log4jConfigPath = null;
 
     private boolean showTimeToUnlockUser = false;
 
@@ -155,7 +154,7 @@ public final class AuthManager {
         try {
             configPath = servletContext
                     .getInitParameter(MELLOPHONE_CONFIG_PATH);
-            log4jConfigPath = servletContext
+            String log4jConfigPath = servletContext
                     .getInitParameter(LOG4J_CONFIG_PATH);
 
             if (configPath == null) {
@@ -191,7 +190,7 @@ public final class AuthManager {
 
             if (log4jConfigPath != null) {
                 File log4jConfigFile = new File(log4jConfigPath);
-                if (configFile.exists()) {
+                if (log4jConfigFile.exists()) {
                     System.setProperty("log4j.configuration", "file:" + log4jConfigPath);
                 }
             }
@@ -821,12 +820,10 @@ public final class AuthManager {
             }
             lockouts.loginFail(login);
 
-            if (procPostProcessProvider == null) {
-                if (lockouts.isLocked(login)) {
-                    String s = getMessageUserIslockedOutForTooManyUnsuccessfulLoginAttempts(sesid, login, ip);
-                    LOGGER.error(s);
-                    resumeMessage.append(". " + s);
-                }
+            if ((procPostProcessProvider == null) && lockouts.isLocked(login)) {
+                String s = getMessageUserIslockedOutForTooManyUnsuccessfulLoginAttempts(sesid, login, ip);
+                LOGGER.error(s);
+                resumeMessage.append(". " + s);
             }
 
             throw EAuthServerLogic
