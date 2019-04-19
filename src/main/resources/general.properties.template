@@ -1,4 +1,4 @@
- 
-mellophone.config.path = D:\\git\\mellophone\\src\\main\\resources\\config\\config.xml
+mellophone.config.path=D:\\IdeaProjects\\mellophone\\src\\main\\resources\\config\\config.xml
+log4j.config.path=D:\\IdeaProjects\\mellophone\\src\\main\\resources\\config\\log4j.xml
 
 
