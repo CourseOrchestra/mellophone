@@ -238,14 +238,27 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
         try {
             ((SQLLink) context).conn = getConnection();
 
-            sql = String.format(
-                    "SELECT \"%s\", %s FROM \"%s\" WHERE lower(\"%s\") = ?",
-                    fieldPassword, getSelectFields(), table, fieldLogin);
+
+            if (getSQLServerType(getConnectionUrl()) == SQLServerType.FIREBIRD) {
+                sql = String.format(
+                        "SELECT \"%s\", %s FROM \"%s\" WHERE \"%s\" = ?",
+                        fieldPassword, getSelectFields(), table, fieldLogin);
+            } else {
+                sql = String.format(
+                        "SELECT \"%s\", %s FROM \"%s\" WHERE lower(\"%s\") = ?",
+                        fieldPassword, getSelectFields(), table, fieldLogin);
+            }
+
 
             PreparedStatement stat = ((SQLLink) context).conn
                     .prepareStatement(sql);
 
-            stat.setString(1, login.toLowerCase());
+            if (getSQLServerType(getConnectionUrl()) == SQLServerType.FIREBIRD) {
+                stat.setString(1, login);
+            } else {
+                stat.setString(1, login.toLowerCase());
+            }
+
 
             boolean hasResult = stat.execute();
             if (hasResult) {
