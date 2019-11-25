@@ -266,11 +266,11 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
                         success = (pwdComplex != null)
                                 && ((!AuthManager.getTheManager().isCheckPasswordHashOnly()) && pwdComplex.equals(password) || checkPasswordHash(pwdComplex, password));
 
-                        if (procPostProcess != null) {
+                        StringWriter sw = new StringWriter();
+                        writeReturningAttributes(sw, rs);
+                        sw.flush();
 
-                            StringWriter sw = new StringWriter();
-                            writeReturningAttributes(sw, rs);
-                            sw.flush();
+                        if (procPostProcess != null) {
 
                             PostProcessResult ppr = callProcPostProcess(((SQLLink) context).conn,
                                     sesid, login, success, sw.toString(), ip,
@@ -287,7 +287,8 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 
 
                         if (success && (pw != null)) {
-                            writeReturningAttributes(pw, rs);
+                            //writeReturningAttributes(pw, rs);
+                            pw.append(sw.toString());
                         }
 
                     }
