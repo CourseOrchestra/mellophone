@@ -236,9 +236,9 @@ final class LDAPLoginProvider extends AbstractLoginProvider {
 		this.searchFilterForImport = searchFilterForImport;
 	}
 
-	void setSidHashAlgorithm(String aSidHashAlgorithm) { this.sidHashAlgorithm = aSidHashAlgorithm; }
+	public void setSidHashAlgorithm(String aSidHashAlgorithm) { this.sidHashAlgorithm = aSidHashAlgorithm; }
 
-	void setSidLocalSecuritySalt(String sidLocalSecuritySalt) {
+	public void setSidLocalSecuritySalt(String sidLocalSecuritySalt) {
 		this.sidLocalSecuritySalt = sidLocalSecuritySalt;
 	}
 
