@@ -1,10 +1,15 @@
 package ru.curs.mellophone.logic;
 
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -107,6 +112,8 @@ final class LDAPLoginProvider extends AbstractLoginProvider {
 		GSSAPI
 	}
 
+	private static ConcurrentHashMap<String, MessageDigest> mdPool = new ConcurrentHashMap<String, MessageDigest>(4);
+
 	private ServerType servertype;
 	private boolean usessl;
 	private SecurityAuthenticationType sat;
@@ -115,6 +122,9 @@ final class LDAPLoginProvider extends AbstractLoginProvider {
 	private String searchFilterForUser;
 	private String searchFilterForImport;
 	private String domainName = null;
+	private static String sidHashAlgorithm = null;
+	private static String sidLocalSecuritySalt = null;
+
 
 	private class InitialKerberosContext implements
 			java.security.PrivilegedAction<Object> {
@@ -226,7 +236,37 @@ final class LDAPLoginProvider extends AbstractLoginProvider {
 		this.searchFilterForImport = searchFilterForImport;
 	}
 
-	private static String convertSIDToString(byte[] sID) {
+	void setSidHashAlgorithm(String sidHashAlgorithm) { this.sidHashAlgorithm = sidHashAlgorithm; }
+
+	void setSidLocalSecuritySalt(String sidLocalSecuritySalt) {
+		this.sidLocalSecuritySalt = sidLocalSecuritySalt;
+	}
+
+	private String getHash(String input, String alg) throws UnsupportedEncodingException, EAuthServerLogic {
+
+		MessageDigest md = mdPool.get(alg);
+		if (md == null) {
+			try {
+				md = MessageDigest.getInstance(alg);
+				if (mdPool.get(alg) == null) {
+					mdPool.put(alg, md);
+				}
+			} catch (NoSuchAlgorithmException e) {
+				if (getLogger() != null) {
+					getLogger().error(e.getMessage());
+				}
+				throw EAuthServerLogic.create("Алгоритм хеширования " + alg + " не доступен");
+			}
+		}
+
+		synchronized (md) {
+			md.reset();
+			md.update(input.getBytes("UTF-8"));
+			return asHex(md.digest());
+		}
+	}
+
+	private String convertSIDToString(byte[] sID) {
 		// Add the 'S' prefix
 		StringBuilder strSID = new StringBuilder("S-");
 
@@ -259,8 +299,22 @@ final class LDAPLoginProvider extends AbstractLoginProvider {
 			strSID.append('-').append(Long.parseLong(tmpBuff.toString(), 16));
 		}
 
-		// That's it - we have the SID
-		return strSID.toString();
+		String resultSid = strSID.toString();
+
+		try {
+			if(sidHashAlgorithm != null) {
+				SecureRandom r = new SecureRandom();
+				String salt = String.format("%016x", r.nextLong())
+						+ String.format("%016x", r.nextLong());
+				resultSid = sidLocalSecuritySalt != null ?
+						getHash(strSID.toString() + salt + sidLocalSecuritySalt, sidHashAlgorithm) :
+						getHash(strSID.toString() + salt, sidHashAlgorithm);
+			}
+		} catch (Exception exp) {
+			throw new RuntimeException(exp.getMessage(), exp);
+		}
+
+		return resultSid;
 	}
 
 	private String getConnectName(String name) throws EAuthServerLogic {
