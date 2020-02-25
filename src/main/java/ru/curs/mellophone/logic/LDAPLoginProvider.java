@@ -122,8 +122,8 @@ final class LDAPLoginProvider extends AbstractLoginProvider {
 	private String searchFilterForUser;
 	private String searchFilterForImport;
 	private String domainName = null;
-	private static String sidHashAlgorithm = null;
-	private static String sidLocalSecuritySalt = null;
+	private String sidHashAlgorithm = null;
+	private String sidLocalSecuritySalt = null;
 
 
 	private class InitialKerberosContext implements
@@ -236,7 +236,7 @@ final class LDAPLoginProvider extends AbstractLoginProvider {
 		this.searchFilterForImport = searchFilterForImport;
 	}
 
-	void setSidHashAlgorithm(String sidHashAlgorithm) { this.sidHashAlgorithm = sidHashAlgorithm; }
+	void setSidHashAlgorithm(String aSidHashAlgorithm) { this.sidHashAlgorithm = aSidHashAlgorithm; }
 
 	void setSidLocalSecuritySalt(String sidLocalSecuritySalt) {
 		this.sidLocalSecuritySalt = sidLocalSecuritySalt;
@@ -311,7 +311,7 @@ final class LDAPLoginProvider extends AbstractLoginProvider {
 						getHash(strSID.toString() + salt, sidHashAlgorithm);
 			}
 		} catch (Exception exp) {
-			throw new RuntimeException(exp.getMessage(), exp);
+			getLogger().error(exp.getMessage());
 		}
 
 		return resultSid;
