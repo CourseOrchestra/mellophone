@@ -110,7 +110,7 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
         searchReturningAttributes.put(name, value);
     }
 
-    private void setAuthMethod(AuthMethod authMethod) {
+    public void setAuthMethod(AuthMethod authMethod) {
         this.authMethod = authMethod;
     }
 
