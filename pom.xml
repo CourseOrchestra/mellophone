@@ -5,7 +5,7 @@
     <groupId>ru.curs</groupId>
     <artifactId>mellophone</artifactId>
     <packaging>war</packaging>
-    <version>6.1-SNAPSHOT</version>
+    <version>6.2-SNAPSHOT</version>
     <name>mellophone</name>
     <url>https://corchestra.ru/wiki/index.php?title=Mellophone</url>
 
@@ -233,7 +233,7 @@
         <dependency>
             <groupId>org.firebirdsql.jdbc</groupId>
             <artifactId>jaybird-jdk18</artifactId>
-            <version>3.0.7</version>
+            <version>3.0.8</version>
         </dependency>
 
     </dependencies>
