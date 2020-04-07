@@ -233,7 +233,7 @@
         <dependency>
             <groupId>org.firebirdsql.jdbc</groupId>
             <artifactId>jaybird-jdk18</artifactId>
-            <version>3.0.7</version>
+            <version>3.0.8</version>
         </dependency>
 
     </dependencies>

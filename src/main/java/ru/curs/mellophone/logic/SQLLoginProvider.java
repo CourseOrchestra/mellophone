@@ -49,8 +49,17 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
     private String localSecuritySalt = "";
     private String procPostProcess = null;
 
-
     private final HashMap<String, String> searchReturningAttributes = new HashMap<String, String>();
+
+    private AuthMethod authMethod = AuthMethod.CHECK;
+
+    /**
+     * Тип метода аутентификации.
+     */
+    enum AuthMethod {
+        CHECK, CONNECT
+    }
+
 
     @Override
     void setupLogger(boolean isLogging) {
@@ -100,6 +109,11 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
     void addReturningAttributes(String name, String value) {
         searchReturningAttributes.put(name, value);
     }
+
+    public void setAuthMethod(AuthMethod authMethod) {
+        this.authMethod = authMethod;
+    }
+
 
     /**
      * Тип SQL сервера.
@@ -236,6 +250,16 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
         String sql = "";
         BadLoginType blt = BadLoginType.BAD_CREDENTIALS;
         try {
+
+
+            if (authMethod == AuthMethod.CONNECT) {
+                registerDriver(getConnectionUrl());
+                Connection connAuthMethodCONNECT = DriverManager.getConnection(getConnectionUrl(),
+                        login, password);
+                connAuthMethodCONNECT.close();
+            }
+
+
             ((SQLLink) context).conn = getConnection();
 
 
@@ -276,8 +300,17 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
                     if (blt != BadLoginType.USER_BLOCKED_PERMANENTLY) {
                         String pwdComplex = rs.getString(fieldPassword);
 
-                        success = (pwdComplex != null)
-                                && ((!AuthManager.getTheManager().isCheckPasswordHashOnly()) && pwdComplex.equals(password) || checkPasswordHash(pwdComplex, password));
+                        switch (authMethod) {
+                            case CHECK:
+                                success = (pwdComplex != null)
+                                        && ((!AuthManager.getTheManager().isCheckPasswordHashOnly()) && pwdComplex.equals(password) || checkPasswordHash(pwdComplex, password));
+                                break;
+                            case CONNECT:
+                                success = true;
+                                break;
+                            default:
+                                break;
+                        }
 
                         StringWriter sw = new StringWriter();
                         writeReturningAttributes(sw, rs);

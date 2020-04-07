@@ -48,13 +48,13 @@
     <sqlserver>
         <id>test</id>
         <logging>true</logging>
-        <url>jdbc:firebirdsql://localhost:3050/D:/Program Files/RedDatabase/examples/empbuild/EMPLOYEE.FDB</url>
+        <url>jdbc:firebirdsql://localhost:3050/F:/Programs/RedDatabase/examples/empbuild/SMEV.FDB?encoding=UTF8</url>
         <connectionusername>SYSDBA</connectionusername>
-        <connectionpassword>F708420Dx</connectionpassword>
-        <table>USERS</table>
-        <fieldlogin>LOGIN</fieldlogin>
-        <fieldpassword>PASSWORD</fieldpassword>
-        <fieldblocked>IS_BLOCKED</fieldblocked>
+        <connectionpassword>masterkey</connectionpassword>
+        <table>smevdata_Users</table>
+        <fieldlogin>login</fieldlogin>
+        <fieldpassword>password</fieldpassword>
+        <fieldblocked>isBlocked</fieldblocked>
         <hashalgorithm>SHA-256</hashalgorithm>
         <localsecuritysalt>0763bdd890421f02bba7bfe8b456c69f</localsecuritysalt>
 
@@ -62,20 +62,79 @@
         <trusteduser>Петров1</trusteduser>
 
 
-        <procpostprocess>POST_PROCESS</procpostprocess>
+        <!--<procpostprocess>POST_PROCESS</procpostprocess>-->
 
 
         <searchreturningattributes
-                SID="OBJECTSID"
-                login="LOGIN"
-                name="NAME"
-                email="EMAIL"
-                phone="PHONE"
+                SID="sid"
+                login="login"
+                name="name"
+                email="email"
+                phone="phone"
                 organization=""
-                fax="FAX"
+                fax="fax"
         />
     </sqlserver>
 
+
+    <sqlserver>
+        <id>test2</id>
+        <logging>true</logging>
+        <url>jdbc:firebirdsql://157.245.72.161:3050//db/ISMO.FDB?encoding=UTF8</url>
+        <connectionusername>SYSDBA</connectionusername>
+        <connectionpassword>masterkey</connectionpassword>
+        <table>SYS_USERS</table>
+        <fieldlogin>SUSER_NAME</fieldlogin>
+        <fieldpassword>SUSER_PASSWORD</fieldpassword>
+        <fieldblocked>SUSER_BLOCKED</fieldblocked>
+        <hashalgorithm>SHA-256</hashalgorithm>
+        <localsecuritysalt>0763bdd890421f02bba7bfe8b456c69f</localsecuritysalt>
+
+       <!--<procpostprocess>POST_PROCESS</procpostprocess>-->
+
+
+        <searchreturningattributes
+                SID="SUSER_ID"
+                login="SUSER_NAME"
+                name="SUSER_FIO"
+                email="EMAIL_ADDRESS"
+                phone=""
+                description="SUSER_DESCRIPTION"
+                organization=""
+                fax=""
+        />
+    </sqlserver>
+
+
+    <ldapserver>
+        <group_providers>OFFICE</group_providers>
+        <domain_name>Office</domain_name>
+        <logging>false</logging>
+        <servertype>MSActiveDirectory</servertype>
+        <url>ldap://172.16.1.3:389</url>
+        <usessl>false</usessl>
+        <sat>Simple</sat>
+        <sidhashalgorithm>SHA-256</sidhashalgorithm>
+        <sidlocalsecuritysalt>0763bdd890421f02bba7bfe8b456c69f</sidlocalsecuritysalt>
+        <searchbase>CN=Builtin,DC=curs,DC=ru</searchbase>
+        <searchbase>CN=Users,DC=curs,DC=ru</searchbase>
+        <searchbase>OU=Office,DC=curs,DC=ru</searchbase>
+        <searchreturningattributes
+                SID="objectSid"
+                login="sAMAccountName"
+                name="name"
+                email="targetAddress"
+                phone="telephoneNumber"
+                organization = ""
+                fax = ""
+        />
+        <searchfilterforuser>
+            (&amp;(objectCategory=person)(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2))(sAMAccountName=%s))
+        </searchfilterforuser>
+        <searchfilterforimport>
+            (&amp;(objectCategory=person)(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))
+        </searchfilterforimport>
+    </ldapserver>
 
     <!--
         <sqlserver>

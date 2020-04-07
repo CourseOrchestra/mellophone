@@ -1681,6 +1681,22 @@ public final class AuthManager {
                                 .setLocalSecuritySalt(value);
                 }
             });
+            actions.put("sidhashalgorithm", new ParserAction() {
+                @Override
+                void characters(String value) {
+                    if (loginProviders.size() > 0)
+                        ((LDAPLoginProvider) loginProviders.getLast())
+                                .setSidHashAlgorithm(value);
+                }
+            });
+            actions.put("sidlocalsecuritysalt", new ParserAction() {
+                @Override
+                void characters(String value) {
+                    if (loginProviders.size() > 0)
+                        ((LDAPLoginProvider) loginProviders.getLast())
+                                .setSidLocalSecuritySalt(value);
+                }
+            });
             actions.put("trusteduser", new ParserAction() {
                 @Override
                 void characters(String value) {
@@ -1905,6 +1921,16 @@ public final class AuthManager {
                     if (value != null) {
                         checkPasswordHashOnly = Boolean.valueOf(value);
                     }
+                }
+            });
+
+            actions.put("authmethod", new ParserAction() {
+                @Override
+                void characters(String value) {
+                    if (loginProviders.size() > 0)
+                        ((SQLLoginProvider) loginProviders.getLast())
+                                .setAuthMethod(SQLLoginProvider.AuthMethod
+                                        .valueOf(value.trim()));
                 }
             });
 
