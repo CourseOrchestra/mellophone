@@ -264,9 +264,22 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 
 
             if (getSQLServerType(getConnectionUrl()) == SQLServerType.FIREBIRD) {
-                sql = String.format(
-                        "SELECT \"%s\", %s FROM \"%s\" WHERE \"%s\" = ?",
-                        fieldPassword, getSelectFields(), table, fieldLogin);
+
+                switch (authMethod) {
+                    case CHECK:
+                        sql = String.format(
+                                "SELECT \"%s\", %s FROM \"%s\" WHERE \"%s\" = ?",
+                                fieldPassword, getSelectFields(), table, fieldLogin);
+                        break;
+                    case CONNECT:
+                        sql = String.format(
+                                "SELECT %s FROM \"%s\" WHERE \"%s\" = ?",
+                                getSelectFields(), table, fieldLogin);
+                        break;
+                    default:
+                        break;
+                }
+
             } else {
                 sql = String.format(
                         "SELECT \"%s\", %s FROM \"%s\" WHERE lower(\"%s\") = ?",
@@ -298,10 +311,10 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
                     }
 
                     if (blt != BadLoginType.USER_BLOCKED_PERMANENTLY) {
-                        String pwdComplex = rs.getString(fieldPassword);
 
                         switch (authMethod) {
                             case CHECK:
+                                String pwdComplex = rs.getString(fieldPassword);
                                 success = (pwdComplex != null)
                                         && ((!AuthManager.getTheManager().isCheckPasswordHashOnly()) && pwdComplex.equals(password) || checkPasswordHash(pwdComplex, password));
                                 break;
