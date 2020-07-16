@@ -1,7 +1,11 @@
 package ru.curs.mellophone.logic;
 
+import org.apache.commons.codec.binary.Hex;
 import org.slf4j.LoggerFactory;
 
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -13,6 +17,7 @@ import java.io.Writer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Queue;
@@ -32,6 +37,11 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
     private static final String USER_IS_BLOCKED_PERMANENTLY = "User %s is blocked permanently.";
 
     private static final String PASSWORD_DIVIDER = "#";
+
+    private static final String PBKDF2 = "pbkdf2";
+    private static final String PBKDF2_PASSWORD_DIVIDER = "\\$";
+    private static final String PBKDF2_ALG_DIVIDER = ":";
+
 
     private static ConcurrentHashMap<String, MessageDigest> mdPool = new ConcurrentHashMap<String, MessageDigest>(4);
 
@@ -440,22 +450,37 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
 
     private boolean checkPasswordHash(String pwdComplex, String password) throws UnsupportedEncodingException, EAuthServerLogic {
 
-        String alg;
-        String salt;
-        String hash;
+        if (PBKDF2.equalsIgnoreCase(pwdComplex.substring(0, PBKDF2.length()))) {
+            String[] pwdParts = pwdComplex.split(PBKDF2_PASSWORD_DIVIDER);
 
-        String[] pwdParts = pwdComplex.split(PASSWORD_DIVIDER);
-        if (pwdParts.length >= 3) {
-            alg = getHashAlgorithm2(pwdParts[0]);
-            salt = pwdParts[1];
-            hash = pwdParts[2];
+            String alg = pwdParts[0];
+            String salt = pwdParts[1];
+            String hash = pwdParts[2];
+
+            String[] algParts = alg.split(PBKDF2_ALG_DIVIDER);
+
+            int iterations = Integer.parseInt(algParts[2]);
+
+            return hash.equals(getHashForPBKDF2(password, salt, iterations));
+
         } else {
-            alg = "SHA-1";
-            salt = "";
-            hash = pwdComplex;
-        }
+            String alg;
+            String salt;
+            String hash;
 
-        return hash.equals(getHash(password + salt + localSecuritySalt, alg));
+            String[] pwdParts = pwdComplex.split(PASSWORD_DIVIDER);
+            if (pwdParts.length >= 3) {
+                alg = getHashAlgorithm2(pwdParts[0]);
+                salt = pwdParts[1];
+                hash = pwdParts[2];
+            } else {
+                alg = "SHA-1";
+                salt = "";
+                hash = pwdComplex;
+            }
+
+            return hash.equals(getHash(password + salt + localSecuritySalt, alg));
+        }
 
     }
 
@@ -689,6 +714,21 @@ public final class SQLLoginProvider extends AbstractLoginProvider {
         }
 
     }
+
+    private String getHashForPBKDF2(String password, String salt, int iterations) throws EAuthServerLogic {
+        final int keyLength = 256;
+        try {
+            SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt.getBytes(), iterations, keyLength);
+            SecretKey key = skf.generateSecret(spec);
+            byte[] hashedBytes = key.getEncoded();
+            String res = Hex.encodeHexString(hashedBytes);
+            return res;
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw EAuthServerLogic.create(e);
+        }
+    }
+
 
     private String getHashAlgorithm1(String input) {
         return input.toLowerCase().replace("-", "");
