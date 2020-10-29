@@ -333,6 +333,21 @@ final class LDAPLoginProvider extends AbstractLoginProvider {
 	private String getConnectNameForMSActiveDirectory(String name) {
 		// if ((sat == SecurityAuthenticationType.DIGEST_MD5)
 		// || (sat == SecurityAuthenticationType.GSSAPI)) {
+/*
+		if (name.indexOf("\\") > -1)
+			name = name.substring(name.lastIndexOf("\\") + 1);
+		if (name.indexOf("@") > -1)
+			name = name.substring(0, name.lastIndexOf("@"));
+*/
+		// }
+
+		return name;
+	}
+
+
+	private String getSearchNameForMSActiveDirectory(String name) {
+		// if ((sat == SecurityAuthenticationType.DIGEST_MD5)
+		// || (sat == SecurityAuthenticationType.GSSAPI)) {
 		if (name.indexOf("\\") > -1)
 			name = name.substring(name.lastIndexOf("\\") + 1);
 		if (name.indexOf("@") > -1)
@@ -341,6 +356,7 @@ final class LDAPLoginProvider extends AbstractLoginProvider {
 
 		return name;
 	}
+
 
 	private Hashtable<String, Object> createLdapParamsForApacheDS() {
 		Hashtable<String, Object> ldapParams = new Hashtable<String, Object>(12);
@@ -433,7 +449,7 @@ final class LDAPLoginProvider extends AbstractLoginProvider {
 		// }
 
 		if (servertype == ServerType.MSActiveDirectory) {
-			name = getConnectNameForMSActiveDirectory(name);
+			name = getSearchNameForMSActiveDirectory(name);
 		}
 
 		return name;
