@@ -505,42 +505,38 @@ final class LDAPLoginProvider extends AbstractLoginProvider {
 		return ldapParams;
 	}
 
+
 	@Override
 	void connect(String sesid, String sSecurityPrincipal, String sSecurityCredentials,
 			String ip, ProviderContextHolder ldapLink, PrintWriter pw)
 			throws EAuthServerLogic {
 
-		// Сначала мы пытаемся зайти без префикса
 		sSecurityPrincipal = getConnectName(sSecurityPrincipal);
+
+		if(!(sSecurityPrincipal.contains("@") || sSecurityPrincipal.contains("\\"))) {
+			if ((domainName != null) && (!domainName.isEmpty())){
+				if(domainName.contains("@")){
+					sSecurityPrincipal = sSecurityPrincipal + domainName;
+				}
+				if(domainName.contains("\\")){
+					sSecurityPrincipal = domainName + sSecurityPrincipal;
+				}
+			}
+		}
 
 		try {
 			internalConnect(sSecurityPrincipal, sSecurityCredentials, ldapLink);
 		} catch (Exception e) {
-
-			try {
-				// Если зайти без префикса не получилось, и у нас есть префикс,
-				// то мы можем попробовать войти с префиксом.
-				if ((domainName != null) && (!domainName.isEmpty()))
-					sSecurityPrincipal = getDomainName() + "\\"
-							+ sSecurityPrincipal;
-				else {
-					// Если префикса нет, то не пытаемся больше войти.
-					throw e;
-				}
-				internalConnect(sSecurityPrincipal, sSecurityCredentials,
-						ldapLink);
-			} catch (Exception e1) {
-				if (getLogger() != null) {
-					getLogger().error(
-							"Логин пользователя '" + sSecurityPrincipal
-									+ "' в '" + getConnectionUrl()
-									+ "' не успешен: " + e.getMessage());
-				}
-				throw EAuthServerLogic.create(e);
+			if (getLogger() != null) {
+				getLogger().error(
+						"Логин пользователя '" + sSecurityPrincipal
+								+ "' в '" + getConnectionUrl()
+								+ "' не успешен: " + e.getMessage());
 			}
+			throw EAuthServerLogic.create(e);
 		}
-
 	}
+
 
 	private void internalConnect(String sSecurityPrincipal,
 			String sSecurityCredentials, ProviderContextHolder ldapLink)
