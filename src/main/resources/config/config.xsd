@@ -295,6 +295,87 @@
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
+                <xs:element name="sqlserverext">
+                    <xs:annotation>
+                        <xs:documentation>Коннектор к SQL-серверу.</xs:documentation>
+                    </xs:annotation>
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element minOccurs="0" name="id" type="xs:string"/>
+                            <xs:element minOccurs="0" name="group_providers" type="xs:string"/>
+                            <xs:element minOccurs="0" name="logging" type="xs:boolean"/>
+                            <xs:element minOccurs="0" name="sessiontimeout" type="xs:integer"/>
+                            <xs:element minOccurs="1" name="url">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element minOccurs="1" name="connectionusername">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element minOccurs="1" name="connectionpassword">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element minOccurs="1" name="table">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element minOccurs="1" name="tableattr">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element minOccurs="0" name="hashalgorithm">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                        <xs:enumeration value="MD2"/>
+                                        <xs:enumeration value="MD5"/>
+                                        <xs:enumeration value="SHA-1"/>
+                                        <xs:enumeration value="SHA-224"/>
+                                        <xs:enumeration value="SHA-256"/>
+                                        <xs:enumeration value="SHA-384"/>
+                                        <xs:enumeration value="SHA-512"/>
+                                        <xs:enumeration value="md2"/>
+                                        <xs:enumeration value="md5"/>
+                                        <xs:enumeration value="sha-1"/>
+                                        <xs:enumeration value="sha-224"/>
+                                        <xs:enumeration value="sha-256"/>
+                                        <xs:enumeration value="sha-384"/>
+                                        <xs:enumeration value="sha-512"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element minOccurs="0" name="localsecuritysalt">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element minOccurs="0" maxOccurs="unbounded" name="trusteduser">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element minOccurs="0" name="procpostprocess">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
             </xs:choice>
         </xs:complexType>
     </xs:element>

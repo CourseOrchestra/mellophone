@@ -7,20 +7,15 @@
         <threadcount>1</threadcount>
 
         <!--
-
                 <sessiontimeout>1440</sessiontimeout>
-
         -->
 
         <authsessions initialCapacity="10000" loadFactor="80" concurrencyLevel="128"/>
         <appsessions initialCapacity="10000" loadFactor="80" concurrencyLevel="128"/>
 
-
-        <lockouttime>20</lockouttime>
-
+        <lockouttime>1</lockouttime>
 
         <loginattemptsallowed>3</loginattemptsallowed>
-
 
         <setsettingstoken>43c42c2ee9210b0a77166a37f82bb4b6</setsettingstoken>
 
@@ -28,41 +23,115 @@
 
         <showtimetounlockuser>true</showtimetounlockuser>
 
-
         <checkpasswordhashonly>false</checkpasswordhashonly>
-
-
     </common>
 
 
-    <ldapserver>
-        <group_providers>Группа1</group_providers>
-        <domain_name>@Office</domain_name>
-        <logging>false</logging>
-        <servertype>MSActiveDirectory</servertype>
-        <url>ldap://server-2:389</url>
-        <usessl>false</usessl>
-        <sat>Simple</sat>
-        <searchbase>CN=Builtin,DC=curs,DC=ru</searchbase>
-        <searchbase>CN=Users,DC=curs,DC=ru</searchbase>
-        <searchbase>OU=Office,DC=curs,DC=ru</searchbase>
-        <searchreturningattributes
-                SID="objectSid"
-                login="sAMAccountName"
-                name="name"
-                email="targetAddress"
-                phone="telephoneNumber"
-                organization = ""
-                fax = ""
-        />
-        <searchfilterforuser>
-            (&amp;(objectCategory=person)(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2))(sAMAccountName=%s))
-        </searchfilterforuser>
-        <searchfilterforimport>
-            (&amp;(objectCategory=person)(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))
-        </searchfilterforimport>
-    </ldapserver>
 
+    <sqlserverext>
+        <id>test2</id>
+        <group_providers>Группа1</group_providers>
+        <logging>true</logging>
+        <url>jdbc:postgresql://localhost:5432/test</url>
+        <connectionusername>postgres</connectionusername>
+        <connectionpassword>F708420Dx</connectionpassword>
+        <table>User</table>
+        <tableattr>UserAttr</tableattr>
+        <procpostprocess>postprocess</procpostprocess>
+    </sqlserverext>
+
+
+<!--
+    <hashalgorithm>SHA-128</hashalgorithm>
+    <localsecuritysalt>dddd</localsecuritysalt>
+-->
+
+
+<!--
+    <sqlserverext>
+        <logging>true</logging>
+        <url>jdbc:postgresql://localhost:5432/test</url>
+        <connectionusername>postgres</connectionusername>
+        <connectionpassword>F708420Dx</connectionpassword>
+        <table>User22</table>
+        <tableattr>UserAttr22</tableattr>
+    </sqlserverext>
+-->
+
+
+
+
+<!--
+    <sqlserver>
+        <logging>true</logging>
+        <url>jdbc:postgresql://localhost:5432/test</url>
+        <connectionusername>postgres</connectionusername>
+        <connectionpassword>F708420Dx</connectionpassword>
+        <table>Пользователи</table>
+        <fieldlogin>Логин</fieldlogin>
+        <fieldpassword>Пароль</fieldpassword>
+        <fieldblocked>Заблокированный</fieldblocked>
+        <searchreturningattributes
+                SID="Поле objectSid"
+                login="Логин"
+                name="Поле name"
+                email="Поле email"
+                phone="Поле phone"
+                organization = ""
+                fax = "Поле fax"
+        />
+    </sqlserver>
+-->
+
+
+
+
+
+
+<!--
+        <xmlfile>
+            <id>test2</id>
+            <logging>true</logging>
+            <url>
+                C:\\Users\\Boris\\IdeaProjects\\mellophone\\src\\main\\resources\\config\\samples\\users.xml
+            </url>
+            <trusteduser>Иванов1</trusteduser>
+        </xmlfile>
+-->
+
+
+
+
+    <!--
+        <ldapserver>
+            <group_providers>Группа1</group_providers>
+            <domain_name>@Office</domain_name>
+            <logging>false</logging>
+            <servertype>MSActiveDirectory</servertype>
+            <url>ldap://server-2:389</url>
+            <usessl>false</usessl>
+            <sat>Simple</sat>
+            <searchbase>CN=Builtin,DC=curs,DC=ru</searchbase>
+            <searchbase>CN=Users,DC=curs,DC=ru</searchbase>
+            <searchbase>OU=Office,DC=curs,DC=ru</searchbase>
+            <searchreturningattributes
+                    SID="objectSid"
+                    login="sAMAccountName"
+                    name="name"
+                    email="targetAddress"
+                    phone="telephoneNumber"
+                    organization = ""
+                    fax = ""
+            />
+            <searchfilterforuser>
+                (&amp;(objectCategory=person)(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2))(sAMAccountName=%s))
+            </searchfilterforuser>
+            <searchfilterforimport>
+                (&amp;(objectCategory=person)(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))
+            </searchfilterforimport>
+        </ldapserver>
+
+    -->
 
 
     <!--
