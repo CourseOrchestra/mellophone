@@ -13,17 +13,17 @@ import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 
 /**
  * Менеджер системы аутентификации.
  */
 public final class AuthManager {
-
-    private static Logger LOGGER;
 
     /**
      * Указывает на то, что нужно опрашивать все провайдеры, игнорируя группу.
@@ -34,44 +34,36 @@ public final class AuthManager {
      * группой.
      */
     public static final String GROUP_PROVIDERS_NOT_DEFINE = "not_defined";
-
     /**
      * Директория с настройками.
      */
     public static final String DIR_CONFIG = "config/";
-
     private static final String MELLOPHONE_CONFIG_PATH = "mellophone.config.path";
     private static final String LOG4J_CONFIG_PATH = "log4j.config.path";
     private static final String GENERAL_PROPERTIES = "general.properties";
-
     private static final String ERROR_PARSING_CONFIG_XML = "Ошибка при разборе файла конфигурации config.xml: %s";
-
     private static final String SESID_NOT_AUTH = "Сессия приложения с идентификатором %s не аутентифицирована.";
     private static final String PROVIDER_ERROR = "При взаимодействии с логин-провайдером произошла следующая ошибка: %s";
     private static final String LOGIN_TO_PROVIDER_SUCCESSFUL_BUT_USER_NOT_FOUND_IN_BASE = "Логин "
             + "прошел успешно, но данный пользователь не найден в базе.";
     private static final String USER_IS_LOCKED_OUT_FOR_TOO_MANY_UNSUCCESSFUL_LOGIN_ATTEMPTS = "User %s is locked out for too many unsuccessful login attempts.";
     private static final String TIME_TO_UNLOCK = "Time to unlock: %s s.";
-
-
     /**
      * Период срабатывания таймера закрытия сессий по логауту, минуты.
      */
     private static final int TIMER_PERIOD = 60;
-
     private static final long MILLISECSINMINUTE = 60000;
-
+    private static Logger LOGGER;
     private static AuthManager theMANAGER;
-
+    private static ESIALoginProvider esiaLoginProvider = null;
     /**
      * Список зарегистрированных провайдеров.
      */
     private final LinkedList<AbstractLoginProvider> loginProviders = new LinkedList<AbstractLoginProvider>();
-
-    public LinkedList<AbstractLoginProvider> getLoginProviders() {
-        return loginProviders;
-    }
-
+    /**
+     * Залоченные (за повторное использование паролей) пользователи.
+     */
+    private final LockoutManager lockouts = LockoutManager.getLockoutManager();
     /**
      * Список сессий аутентификации.
      */
@@ -80,7 +72,6 @@ public final class AuthManager {
      * Привязка сессий приложений к сессиям аутентификации.
      */
     private ConcurrentHashMap<String, String> appsessions;
-
     /**
      * Параметры authsessions и appsessions.
      */
@@ -90,13 +81,7 @@ public final class AuthManager {
     private int appsessionsInitialCapacity = 16;
     private float appsessionsLoadFactor = (float) 0.75;
     private int appsessionsConcurrencyLevel = 16;
-
     private boolean checkPasswordHashOnly = false;
-
-    public boolean isCheckPasswordHashOnly() {
-        return checkPasswordHashOnly;
-    }
-
     /**
      * Количество потоков, параллельно опрашивающих логин-провайдеры.
      */
@@ -104,25 +89,32 @@ public final class AuthManager {
 
     private int sessionTimeout = 0;
     private Timer timerTimeout = null;
+    private String settingsToken = null;
+    private String getuserlistToken = null;
+    private String configPath = null;
+    private boolean showTimeToUnlockUser = false;
+    private SQLLoginProvider procPostProcessProvider = null;
+    private SQLExtLoginProvider procPostProcessExtProvider = null;
+    private String initializationError = null;
 
     /**
-     * Залоченные (за повторное использование паролей) пользователи.
+     * Возвращает единственный экземпляр (синглетон) менеджера системы
+     * аутентификации.
      */
-    private final LockoutManager lockouts = LockoutManager.getLockoutManager();
+    public static AuthManager getTheManager() {
+        if (theMANAGER == null) {
+            theMANAGER = new AuthManager();
+        }
+        return theMANAGER;
+    }
 
-    private static ESIALoginProvider esiaLoginProvider = null;
+    public LinkedList<AbstractLoginProvider> getLoginProviders() {
+        return loginProviders;
+    }
 
-    private String settingsToken = null;
-
-    private String getuserlistToken = null;
-
-    private String configPath = null;
-
-    private boolean showTimeToUnlockUser = false;
-
-    private SQLLoginProvider procPostProcessProvider = null;
-
-    private String initializationError = null;
+    public boolean isCheckPasswordHashOnly() {
+        return checkPasswordHashOnly;
+    }
 
     /**
      * Ошибка при инициализации приложения.
@@ -130,7 +122,6 @@ public final class AuthManager {
     public String getInitializationError() {
         return initializationError;
     }
-
 
     /**
      * Destroy приложения в рабочем режиме.
@@ -142,7 +133,6 @@ public final class AuthManager {
             timerTimeout.cancel();
         }
     }
-
 
     /**
      * Инициализация приложения в рабочем режиме.
@@ -212,6 +202,12 @@ public final class AuthManager {
                 return;
             }
 
+            if (loginProviders.stream().filter(lp -> "sqlserverext".equals(lp.getType())).collect(Collectors.toList()).size() > 1) {
+                initializationError = "файл конфигурации " + configFile.getCanonicalPath()
+                        + " содержит более одного sqlserverext провайдера аутентификации";
+                return;
+            }
+
             commonInitialize();
 
         } catch (Exception e) {
@@ -275,18 +271,6 @@ public final class AuthManager {
             }, delay, delay);
         }
     }
-
-    /**
-     * Возвращает единственный экземпляр (синглетон) менеджера системы
-     * аутентификации.
-     */
-    public static AuthManager getTheManager() {
-        if (theMANAGER == null) {
-            theMANAGER = new AuthManager();
-        }
-        return theMANAGER;
-    }
-
 
     public void checkCredentials(final String groupProviders, final String login,
                                  final String password, final String ip, final PrintWriter pw)
@@ -352,12 +336,11 @@ public final class AuthManager {
 
                             curProvider.connect(null, login, password, ip, ch, pw);
 
-                            if ((!"SQLLoginProvider"
-                                    .equalsIgnoreCase(curProvider.getClass()
-                                            .getSimpleName()))
-                                    && (!"IASBPLoginProvider"
-                                    .equalsIgnoreCase(curProvider
-                                            .getClass().getSimpleName()))) {
+                            if (
+                                    (!"SQLLoginProvider".equalsIgnoreCase(curProvider.getClass().getSimpleName()))
+                                            && (!"SQLExtLoginProvider".equalsIgnoreCase(curProvider.getClass().getSimpleName()))
+                                            && (!"IASBPLoginProvider".equalsIgnoreCase(curProvider.getClass().getSimpleName()))
+                            ) {
                                 curProvider.getUserInfoByName(ch, login, pw);
                                 if ("".equals(pw.toString().trim())) {
                                     throw EAuthServerLogic
@@ -415,8 +398,8 @@ public final class AuthManager {
             }
             lockouts.loginFail(login);
             throw EAuthServerLogic
-                    .create(String.format(PROVIDER_ERROR, errlog.toString()
-                            + "\nРезюме: " + resumeMessage.toString()));
+                    .create(String.format(PROVIDER_ERROR, errlog
+                            + "\nРезюме: " + resumeMessage));
         }
 
 
@@ -560,8 +543,8 @@ public final class AuthManager {
             }
             lockouts.loginFail(login);
             throw EAuthServerLogic
-                    .create(String.format(PROVIDER_ERROR, errlog.toString()
-                            + "\nРезюме: " + resumeMessage.toString()));
+                    .create(String.format(PROVIDER_ERROR, errlog
+                            + "\nРезюме: " + resumeMessage));
         }
 
 
@@ -645,23 +628,38 @@ public final class AuthManager {
 
     private String getMessageUserIslockedOutForTooManyUnsuccessfulLoginAttempts(final String sesid,
                                                                                 final String login, final String ip) {
-        if (procPostProcessProvider == null) {
+        if ((procPostProcessProvider == null) && (procPostProcessExtProvider == null)) {
             String s = String.format(USER_IS_LOCKED_OUT_FOR_TOO_MANY_UNSUCCESSFUL_LOGIN_ATTEMPTS, login);
             if (showTimeToUnlockUser) {
                 s = s + " " + String.format(TIME_TO_UNLOCK, lockouts.getTimeToUnlock(login));
             }
             return s;
         } else {
-            PostProcessResult ppr = null;
-            try {
-                ppr = procPostProcessProvider.callProcPostProcess(null,
-                        sesid, login, false, null, ip,
-                        true, LockoutManager.getLockoutManager().getAttemptsCount(login),
-                        LockoutManager.getLockoutManager().getTimeToUnlock(login));
-            } catch (Exception e) {
-                return e.getMessage();
+            if (procPostProcessExtProvider != null) {
+                PostProcessResult ppr = null;
+                try {
+                    ppr = procPostProcessExtProvider.callProcPostProcess(null,
+                            sesid, login, false, null, ip,
+                            true, LockoutManager.getLockoutManager().getAttemptsCount(login),
+                            LockoutManager.getLockoutManager().getTimeToUnlock(login));
+                } catch (Exception e) {
+                    return e.getMessage();
+                }
+                return ppr.getMessage();
             }
-            return ppr.getMessage();
+            if (procPostProcessProvider != null) {
+                PostProcessResult ppr = null;
+                try {
+                    ppr = procPostProcessProvider.callProcPostProcess(null,
+                            sesid, login, false, null, ip,
+                            true, LockoutManager.getLockoutManager().getAttemptsCount(login),
+                            LockoutManager.getLockoutManager().getTimeToUnlock(login));
+                } catch (Exception e) {
+                    return e.getMessage();
+                }
+                return ppr.getMessage();
+            }
+            return null;
         }
     }
 
@@ -749,12 +747,11 @@ public final class AuthManager {
 
                             curProvider.connect(sesid, login, password, ip, ch, pw);
 
-                            if ((!"SQLLoginProvider"
-                                    .equalsIgnoreCase(curProvider.getClass()
-                                            .getSimpleName()))
-                                    && (!"IASBPLoginProvider"
-                                    .equalsIgnoreCase(curProvider
-                                            .getClass().getSimpleName()))) {
+                            if (
+                                    (!"SQLLoginProvider".equalsIgnoreCase(curProvider.getClass().getSimpleName()))
+                                            && (!"SQLExtLoginProvider".equalsIgnoreCase(curProvider.getClass().getSimpleName()))
+                                            && (!"IASBPLoginProvider".equalsIgnoreCase(curProvider.getClass().getSimpleName()))
+                            ) {
                                 curProvider.getUserInfoByName(ch, login, pw);
                                 if ("".equals(sw.toString().trim())) {
                                     throw EAuthServerLogic
@@ -820,15 +817,15 @@ public final class AuthManager {
             }
             lockouts.loginFail(login);
 
-            if ((procPostProcessProvider == null) && lockouts.isLocked(login)) {
+            if ((procPostProcessProvider == null) && (procPostProcessExtProvider == null) && lockouts.isLocked(login)) {
                 String s = getMessageUserIslockedOutForTooManyUnsuccessfulLoginAttempts(sesid, login, ip);
                 LOGGER.error(s);
                 resumeMessage.append(". " + s);
             }
 
             throw EAuthServerLogic
-                    .create(String.format(PROVIDER_ERROR, errlog.toString()
-                            + "\nРезюме: " + resumeMessage.toString()));
+                    .create(String.format(PROVIDER_ERROR, errlog
+                            + "\nРезюме: " + resumeMessage));
         }
 
         SecureRandom r = new SecureRandom();
@@ -987,12 +984,12 @@ public final class AuthManager {
             try {
                 ProviderContextHolder context = as.config.newContextHolder();
                 try {
-                    if ((!"HTTPLoginProvider".equalsIgnoreCase(as.config
-                            .getClass().getSimpleName()))
-                            && (!"SQLLoginProvider".equalsIgnoreCase(as.config
-                            .getClass().getSimpleName()))) {
-                        as.config.connect(sesid, as.getName(), as.getPwd(), null,
-                                context, null);
+                    if (
+                            (!"HTTPLoginProvider".equalsIgnoreCase(as.config.getClass().getSimpleName()))
+                                    && (!"SQLLoginProvider".equalsIgnoreCase(as.config.getClass().getSimpleName()))
+                                    && (!"SQLExtLoginProvider".equalsIgnoreCase(as.config.getClass().getSimpleName()))
+                    ) {
+                        as.config.connect(sesid, as.getName(), as.getPwd(), null, context, null);
                     }
                     as.config.getUserInfoByName(context, as.getName(), pw);
                 } finally {
@@ -1039,10 +1036,11 @@ public final class AuthManager {
         try {
             ProviderContextHolder context = as.config.newContextHolder();
             try {
-                if ((!"HTTPLoginProvider".equalsIgnoreCase(as.config.getClass()
-                        .getSimpleName()))
-                        && (!"SQLLoginProvider".equalsIgnoreCase(as.config
-                        .getClass().getSimpleName()))) {
+                if (
+                        (!"HTTPLoginProvider".equalsIgnoreCase(as.config.getClass().getSimpleName()))
+                                && (!"SQLLoginProvider".equalsIgnoreCase(as.config.getClass().getSimpleName()))
+                                && (!"SQLExtLoginProvider".equalsIgnoreCase(as.config.getClass().getSimpleName()))
+                ) {
                     as.config.connect(sesid, as.getName(), as.getPwd(), null, context, null);
                 }
                 as.config.getUserInfoByName(context, name, pw);
@@ -1266,6 +1264,86 @@ public final class AuthManager {
         return res;
     }
 
+
+    public void userCreate(String token, InputStream user) throws EAuthServerLogic {
+        if ((getuserlistToken == null) || (token == null) || (!getuserlistToken.equals(token))) {
+            throw EAuthServerLogic.create("Permission denied.");
+        }
+
+        List<?> list = loginProviders.stream().filter(lp -> "sqlserverext".equals(lp.getType())).collect(Collectors.toList());
+
+        if (list.size() == 0) {
+            throw EAuthServerLogic.create("Файл конфигурации config.xml не содержит sqlserverext провайдера аутентификации");
+        }
+
+        SQLExtLoginProvider p = (SQLExtLoginProvider) list.get(0);
+        p.userCreate(user);
+    }
+
+    public void userUpdate(String token, String sid, InputStream user) throws EAuthServerLogic {
+        if ((getuserlistToken == null) || (token == null) || (!getuserlistToken.equals(token))) {
+            throw EAuthServerLogic.create("Permission denied.");
+        }
+
+        List<?> list = loginProviders.stream().filter(lp -> "sqlserverext".equals(lp.getType())).collect(Collectors.toList());
+
+        if (list.size() == 0) {
+            throw EAuthServerLogic.create("Файл конфигурации config.xml не содержит sqlserverext провайдера аутентификации");
+        }
+
+        SQLExtLoginProvider p = (SQLExtLoginProvider) list.get(0);
+        p.userUpdate(sid, user);
+    }
+
+    public void userDelete(String token, String sid) throws EAuthServerLogic {
+        if ((getuserlistToken == null) || (token == null) || (!getuserlistToken.equals(token))) {
+            throw EAuthServerLogic.create("Permission denied.");
+        }
+
+        List<?> list = loginProviders.stream().filter(lp -> "sqlserverext".equals(lp.getType())).collect(Collectors.toList());
+
+        if (list.size() == 0) {
+            throw EAuthServerLogic.create("Файл конфигурации config.xml не содержит sqlserverext провайдера аутентификации");
+        }
+
+        SQLExtLoginProvider p = (SQLExtLoginProvider) list.get(0);
+        p.userDelete(sid);
+    }
+
+    public void updateUserInfoByUserUpdate(String oldLogin, String newLogin, String newPwd) {
+        if (oldLogin == null) {
+            return;
+        }
+
+        List<AuthSession> authUpdate = authsessions.entrySet().stream()
+                .filter(e -> oldLogin.equals(e.getValue().getName()))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
+
+        authUpdate.forEach(as -> {
+                    as.setName(newLogin);
+                    as.setPwd(newPwd);
+                    as.setUserInfo("");
+                }
+        );
+    }
+
+    public void logoutByUserDelete(String login) {
+        if (login == null) {
+            return;
+        }
+
+        List<String> authDel = authsessions.entrySet().stream()
+                .filter(e -> login.equals(e.getValue().getName()))
+                .map(e -> e.getKey())
+                .collect(Collectors.toList());
+
+        appsessions.values().removeAll(authDel);
+
+        authsessions.keySet().removeAll(authDel);
+    }
+
+
     /**
      * Устанавливает взаимосвязь сессии приложения джанго, сессии аутентификации
      * джанго и сессии аутентификации мелофона.
@@ -1458,7 +1536,7 @@ public final class AuthManager {
 
 
             try (FileOutputStream fout = new FileOutputStream(configPath)) {
-                fout.write(sFile.getBytes("UTF-8"));
+                fout.write(sFile.getBytes(StandardCharsets.UTF_8));
             }
 
         } catch (Exception e) {
@@ -1473,13 +1551,13 @@ public final class AuthManager {
      * ссылку на конфигурацию LDAP-сервера
      */
     private static final class AuthSession {
-        private final String name;
-        private String pwd;
         private final AbstractLoginProvider config;
         private final String authid;
-        private final String userInfo;
         private final String ip;
         private final String djangoauthid;
+        private String userInfo;
+        private String name;
+        private String pwd;
         private long lastAuthenticated = System.currentTimeMillis();
 
         public AuthSession(String name, String pwd,
@@ -1500,6 +1578,10 @@ public final class AuthManager {
             return name;
         }
 
+        public void setName(String name) {
+            this.name = name;
+        }
+
         public String getPwd() {
             return pwd;
         }
@@ -1510,6 +1592,10 @@ public final class AuthManager {
 
         public String getUserInfo() {
             return userInfo;
+        }
+
+        public void setUserInfo(String userInfo) {
+            this.userInfo = userInfo;
         }
 
         public String getIp() {
@@ -1527,26 +1613,8 @@ public final class AuthManager {
         private static final String ATTR_INITIAL_CAPACITY = "initialCapacity";
         private static final String ATTR_LOAD_FACTOR = "loadFactor";
         private static final String ATTR_CONCURRENCY_LEVEL = "concurrencyLevel";
-
-        /**
-         * Обработчик события "тэг конфигурационного файла".
-         */
-        private abstract class ParserAction {
-
-            void startElement(Attributes attributes) {
-            }
-
-            ;
-
-            void characters(String value) {
-            }
-
-            ;
-        }
-
-        private ParserAction currentAction;
-
         private final HashMap<String, ParserAction> actions = new HashMap<String, ParserAction>();
+        private ParserAction currentAction;
 
         {
             actions.put("sqlserver", new ParserAction() {
@@ -1554,6 +1622,13 @@ public final class AuthManager {
                 void startElement(Attributes attributes) {
                     loginProviders.add(new SQLLoginProvider());
                     loginProviders.getLast().setType("sqlserver");
+                }
+            });
+            actions.put("sqlserverext", new ParserAction() {
+                @Override
+                void startElement(Attributes attributes) {
+                    loginProviders.add(new SQLExtLoginProvider());
+                    loginProviders.getLast().setType("sqlserverext");
                 }
             });
             actions.put("httpserver", new ParserAction() {
@@ -1617,28 +1692,55 @@ public final class AuthManager {
                 }
             });
 
+
             actions.put("connectionusername", new ParserAction() {
                 @Override
                 void characters(String value) {
-                    if (loginProviders.size() > 0)
-                        ((SQLLoginProvider) loginProviders.getLast())
-                                .setConnectionUsername(value);
+                    if (loginProviders.size() > 0) {
+                        if (loginProviders.getLast() instanceof SQLLoginProvider) {
+                            ((SQLLoginProvider) loginProviders.getLast())
+                                    .setConnectionUsername(value);
+                        } else {
+                            ((SQLExtLoginProvider) loginProviders.getLast())
+                                    .setConnectionUsername(value);
+                        }
+                    }
                 }
             });
             actions.put("connectionpassword", new ParserAction() {
                 @Override
                 void characters(String value) {
-                    if (loginProviders.size() > 0)
-                        ((SQLLoginProvider) loginProviders.getLast())
-                                .setConnectionPassword(value);
+                    if (loginProviders.size() > 0) {
+                        if (loginProviders.getLast() instanceof SQLLoginProvider) {
+                            ((SQLLoginProvider) loginProviders.getLast())
+                                    .setConnectionPassword(value);
+                        } else {
+                            ((SQLExtLoginProvider) loginProviders.getLast())
+                                    .setConnectionPassword(value);
+                        }
+                    }
                 }
             });
             actions.put("table", new ParserAction() {
                 @Override
                 void characters(String value) {
+                    if (loginProviders.size() > 0) {
+                        if (loginProviders.getLast() instanceof SQLLoginProvider) {
+                            ((SQLLoginProvider) loginProviders.getLast())
+                                    .setTable(value);
+                        } else {
+                            ((SQLExtLoginProvider) loginProviders.getLast())
+                                    .setTable(value);
+                        }
+                    }
+                }
+            });
+            actions.put("tableattr", new ParserAction() {
+                @Override
+                void characters(String value) {
                     if (loginProviders.size() > 0)
-                        ((SQLLoginProvider) loginProviders.getLast())
-                                .setTable(value);
+                        ((SQLExtLoginProvider) loginProviders.getLast())
+                                .setTableAttr(value);
                 }
             });
             actions.put("fieldlogin", new ParserAction() {
@@ -1668,17 +1770,21 @@ public final class AuthManager {
             actions.put("hashalgorithm", new ParserAction() {
                 @Override
                 void characters(String value) {
-                    if (loginProviders.size() > 0)
-                        ((SQLLoginProvider) loginProviders.getLast())
-                                .setHashAlgorithm(value);
+                    if (loginProviders.getLast() instanceof SQLLoginProvider) {
+                        ((SQLLoginProvider) loginProviders.getLast()).setHashAlgorithm(value);
+                    } else {
+                        ((SQLExtLoginProvider) loginProviders.getLast()).setHashAlgorithm(value);
+                    }
                 }
             });
             actions.put("localsecuritysalt", new ParserAction() {
                 @Override
                 void characters(String value) {
-                    if (loginProviders.size() > 0)
-                        ((SQLLoginProvider) loginProviders.getLast())
-                                .setLocalSecuritySalt(value);
+                    if (loginProviders.getLast() instanceof SQLLoginProvider) {
+                        ((SQLLoginProvider) loginProviders.getLast()).setLocalSecuritySalt(value);
+                    } else {
+                        ((SQLExtLoginProvider) loginProviders.getLast()).setLocalSecuritySalt(value);
+                    }
                 }
             });
             actions.put("sidhashalgorithm", new ParserAction() {
@@ -1715,9 +1821,15 @@ public final class AuthManager {
                         if (value.isEmpty()) {
                             value = null;
                         }
-                        ((SQLLoginProvider) loginProviders.getLast())
-                                .setProcPostProcess(value);
-                        procPostProcessProvider = (SQLLoginProvider) loginProviders.getLast();
+
+                        if (loginProviders.getLast() instanceof SQLLoginProvider) {
+                            ((SQLLoginProvider) loginProviders.getLast()).setProcPostProcess(value);
+                            procPostProcessProvider = (SQLLoginProvider) loginProviders.getLast();
+                        } else {
+                            ((SQLExtLoginProvider) loginProviders.getLast()).setProcPostProcess(value);
+                            procPostProcessExtProvider = (SQLExtLoginProvider) loginProviders.getLast();
+                        }
+
                     }
                 }
             });
@@ -1956,6 +2068,19 @@ public final class AuthManager {
                         .characters((new String(ch, start, length)).trim());
                 currentAction = null;
             }
+        }
+
+        /**
+         * Обработчик события "тэг конфигурационного файла".
+         */
+        private abstract class ParserAction {
+
+            void startElement(Attributes attributes) {
+            }
+
+            void characters(String value) {
+            }
+
         }
 
     }
