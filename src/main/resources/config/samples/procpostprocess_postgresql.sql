@@ -1,58 +1,40 @@
+-- FUNCTION: public.postprocess(character varying, character varying, boolean, character varying, character varying, boolean, integer, bigint)
+
+-- DROP FUNCTION IF EXISTS public.postprocess(character varying, character varying, boolean, character varying, character varying, boolean, integer, bigint);
+
+CREATE OR REPLACE FUNCTION public.postprocess(
+	OUT ret integer,
+	sesid character varying,
+	userlogin character varying,
+	userauth boolean,
+	userattributes character varying,
+	userip character varying,
+	userlocked boolean,
+	userloginattempts integer,
+	usertimetounlock bigint,
+	OUT message character varying)
+    RETURNS record
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+BEGIN
+
+ ret := 0;
+
+ message := 'Пользователь не прошел проверку в функции постобработки со следующими параметрами: '
+            || '  sesid = '             || coalesce(sesid, 'null')
+            || ', userlogin = '         || coalesce(userlogin, 'null')
+            || ', userauth = '          || userauth
+			|| ', userattributes = '    || coalesce(userattributes, 'null')
+            || ', userip = '            || coalesce(userip, 'null')
+			|| ', userlocked = '        || userlocked
+            || ', userloginattempts = ' || userloginattempts
+            || ', usertimetounlock = '  || usertimetounlock;
 
 
+END;
+$BODY$;
 
--- Table: public.User
-
--- DROP TABLE IF EXISTS public."User";
-
-CREATE TABLE IF NOT EXISTS public."User"
-(
-    sid character varying(100) COLLATE pg_catalog."default" NOT NULL,
-    login character varying(100) COLLATE pg_catalog."default",
-    pwd character varying(100) COLLATE pg_catalog."default",
-    CONSTRAINT "User_pkey" PRIMARY KEY (sid)
-    )
-
-    TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS public."User"
-    OWNER to postgres;
--- Index: User_login
-
--- DROP INDEX IF EXISTS public."User_login";
-
-CREATE UNIQUE INDEX IF NOT EXISTS "User_login"
-    ON public."User" USING btree
-    (login COLLATE pg_catalog."default" ASC NULLS LAST)
-    TABLESPACE pg_default;
-
-
------------------------------------------------------------------------------------------------------
-
-
--- Table: public.UserAttr
-
--- DROP TABLE IF EXISTS public."UserAttr";
-
-CREATE TABLE IF NOT EXISTS public."UserAttr"
-(
-    sid character varying(100) COLLATE pg_catalog."default" NOT NULL,
-    fieldid character varying(100) COLLATE pg_catalog."default" NOT NULL,
-    fieldvalue character varying(100) COLLATE pg_catalog."default",
-    CONSTRAINT "UserAttr_pkey" PRIMARY KEY (sid, fieldid)
-    )
-
-    TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS public."UserAttr"
-    OWNER to postgres;
--- Index: UserAttr_sid
-
--- DROP INDEX IF EXISTS public."UserAttr_sid";
-
-CREATE INDEX IF NOT EXISTS "UserAttr_sid"
-    ON public."UserAttr" USING btree
-    (sid COLLATE pg_catalog."default" ASC NULLS LAST)
-    TABLESPACE pg_default;
-
-
+ALTER FUNCTION public.postprocess(character varying, character varying, boolean, character varying, character varying, boolean, integer, bigint)
+    OWNER TO postgres;

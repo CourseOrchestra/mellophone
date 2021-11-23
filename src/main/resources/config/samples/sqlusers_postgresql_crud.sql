@@ -1,22 +1,58 @@
 
-drop table IF EXISTS  "Пользователи";
 
-CREATE TABLE public."Пользователи" (
-  "Поле1" CHAR(10),
-  "Поле2" CHAR(10),
-  "Логин" VARCHAR(50) NOT NULL,
-  "Пароль" VARCHAR(50),
-  "Поле objectSid" VARCHAR(50),
-  "Поле name" VARCHAR(50),
-  "Поле email" VARCHAR(50),
-  "Поле phone" VARCHAR(50),
-  "Поле organization" VARCHAR(50),
-  "Поле fax" VARCHAR(50),
-  CONSTRAINT "Пользователи_pkey" PRIMARY KEY("Логин")
-) WITHOUT OIDS;
 
-Insert into "Пользователи" ("Поле1","Поле2","Логин","Пароль","Поле objectSid","Поле name","Поле email","Поле phone","Поле organization","Поле fax") values (null,null,'user222','pwd111','8dbf2a31-cfe6-4188-a2f0-0125481355ce','Алексей В. Васильев','12@yandex.ru','123-56-78','org4','fax4');
-Insert into "Пользователи" ("Поле1","Поле2","Логин","Пароль","Поле objectSid","Поле name","Поле email","Поле phone","Поле organization","Поле fax") values (null,null,'Иванов2','пасс1','8dbf2a31-cfe6-4188-a2f0-0125481355cd','Алексей В. Васильев','12@yandex.ru','123-56-78','org1','fax1');
-Insert into "Пользователи" ("Поле1","Поле2","Логин","Пароль","Поле objectSid","Поле name","Поле email","Поле phone","Поле organization","Поле fax") values (null,null,'Петров2','c8233fc18a5fd0f87284d9fa971049891315ed84','f2f0dbe5-da83-4367-9827-01e7c179ea3a','Борис В. Смирнов','34@yandex.ru','784-23-f5','org2','fax2');
-Insert into "Пользователи" ("Поле1","Поле2","Логин","Пароль","Поле objectSid","Поле name","Поле email","Поле phone","Поле organization","Поле fax") values (null,null,'Сидоров2','пасс3','5e599041-6a69-466e-b22c-f3003be536d9','Евгений Балмасов','56@yandex.ru','апе-43-67','org3','fax3');
+-- Table: public.User
+
+-- DROP TABLE IF EXISTS public."User";
+
+CREATE TABLE IF NOT EXISTS public."User"
+(
+    sid character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    login character varying(100) COLLATE pg_catalog."default",
+    pwd character varying(100) COLLATE pg_catalog."default",
+    CONSTRAINT "User_pkey" PRIMARY KEY (sid)
+    )
+
+    TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."User"
+    OWNER to postgres;
+-- Index: User_login
+
+-- DROP INDEX IF EXISTS public."User_login";
+
+CREATE UNIQUE INDEX IF NOT EXISTS "User_login"
+    ON public."User" USING btree
+    (login COLLATE pg_catalog."default" ASC NULLS LAST)
+    TABLESPACE pg_default;
+
+
+-----------------------------------------------------------------------------------------------------
+
+
+-- Table: public.UserAttr
+
+-- DROP TABLE IF EXISTS public."UserAttr";
+
+CREATE TABLE IF NOT EXISTS public."UserAttr"
+(
+    sid character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    fieldid character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    fieldvalue character varying(100) COLLATE pg_catalog."default",
+    CONSTRAINT "UserAttr_pkey" PRIMARY KEY (sid, fieldid)
+    )
+
+    TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."UserAttr"
+    OWNER to postgres;
+-- Index: UserAttr_sid
+
+-- DROP INDEX IF EXISTS public."UserAttr_sid";
+
+CREATE INDEX IF NOT EXISTS "UserAttr_sid"
+    ON public."UserAttr" USING btree
+    (sid COLLATE pg_catalog."default" ASC NULLS LAST)
+    TABLESPACE pg_default;
+
 
