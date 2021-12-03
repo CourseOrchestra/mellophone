@@ -5,7 +5,7 @@
     <groupId>ru.curs</groupId>
     <artifactId>mellophone</artifactId>
     <packaging>war</packaging>
-    <version>7.0-SNAPSHOT</version>
+    <version>7.1-SNAPSHOT</version>
     <name>mellophone</name>
     <url>https://corchestra.ru/wiki/index.php?title=Mellophone</url>
 

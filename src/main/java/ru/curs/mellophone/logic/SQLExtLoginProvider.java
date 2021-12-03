@@ -577,7 +577,7 @@ public final class SQLExtLoginProvider extends AbstractLoginProvider {
                         sid = rs.getString("sid");
                     }
                     if (rs.getString("fieldid") != null) {
-                        writeXMLAttr(xw, "fieldid", rs.getString("fieldvalue"));
+                        writeXMLAttr(xw,   rs.getString("fieldid"), rs.getString("fieldvalue"));
                     }
                 }
                 rs.close();
