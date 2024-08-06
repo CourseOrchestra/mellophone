@@ -5,4 +5,6 @@
 
 User authentication server for Course Orchestra
 
-* Full documentation (in Russian): https://corchestra.ru/wiki/index.php?title=Mellophone
+* Full documentation (in Russian): https://courseorchestra.github.io/mellophone2/
+  reserve link:  https://corchestra.ru/wiki/index.php?title=Mellophone
+  
